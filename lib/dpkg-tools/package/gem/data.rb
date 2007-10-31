@@ -38,7 +38,7 @@ module DpkgTools
         end
         
         def deb_filename
-          "#{name}-rubygem-#{version}-#{debian_revision}_#{debian_arch}.deb"
+          "#{name}-rubygem_#{version}-#{debian_revision}_#{debian_arch}.deb"
         end
         
         def dependencies

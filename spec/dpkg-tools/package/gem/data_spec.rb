@@ -53,7 +53,7 @@ describe DpkgTools::Package::Gem::Data, "instances" do
   end
   
   it "should provide access to the filename the built .deb will have" do
-    @data.deb_filename.should == "gem_name-rubygem-1.0.8-1_i386.deb"
+    @data.deb_filename.should == "gem_name-rubygem_1.0.8-1_i386.deb"
   end
   
   it "should provide access to any dependencies" do

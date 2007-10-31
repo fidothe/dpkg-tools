@@ -63,10 +63,10 @@ describe DpkgTools::Package::Gem::Builder, "instances" do
     @builder.create_DEBIAN_dir
   end
   
-  it "should be able to override Gem.bindir to provide a sensible alternative" do
-    @builder.expects(:eval).with("def Gem.bindir(install_dir = nil)\n\"a/path/to/stub_gem-rubygem-1.0.8/debian/tmp/usr/bin\"\nend\n")
-    
+  it "should override Gem.bindir to provide a sensible alternative" do
     @builder.override_gem_bindir
+    
+    ::Gem.bindir.should == "a/path/to/stub_gem-rubygem-1.0.8/debian/tmp/usr/bin"
   end
   
   it "should be able to install the gem into the buildroot" do

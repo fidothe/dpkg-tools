@@ -66,7 +66,7 @@ module DpkgTools
             gem.spec.dependencies.each do |dependency|
               entry = ["#{dependency.name}-rubygem"]
               dependency.version_requirements.as_list.each do |version|
-                entry << "(#{version})"
+                entry << "(#{version}-1)"
               end
               build_deps << entry.join(' ')
             end
@@ -86,16 +86,7 @@ module DpkgTools
             # Essential
             control_file << "Essential: no"
             # Depends et al
-            deps = []
-            gem.spec.dependencies.each do |dependency|
-              entry = ["#{dependency.name}-rubygem"]
-              dependency.version_requirements.as_list.each do |version|
-                entry << "(#{version})"
-              end
-              deps << entry.join(' ')
-            end
             control_file << "Depends: #{build_deps.join(', ')}" unless build_deps.empty?
-            control_file << "Pre-Depends: rubygems (>> 0.9.0)"
             # Description (mandatory)
             control_file << "Description: #{gem.spec.summary}" # NB, currently really fudged (not using the proper description)
             # for the final newline

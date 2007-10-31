@@ -15,7 +15,7 @@ module DpkgTools
           end
           
           def most_recent_spec_n_source(specs_n_sources)
-            specs_n_sources.select {|spec, source| spec.platform == ::Gem::Platform::RUBY}.first
+            specs_n_sources.select {|spec, source| spec.platform == ::Gem::Platform::RUBY || spec.platform.nil?}.first
           end
           
           def specs_n_sources_for_name(gem_name)
@@ -28,7 +28,7 @@ module DpkgTools
           
           def most_recent_spec_n_source_satisfying_requirement(requirement, specs_n_sources)
             okay_specs = specs_n_sources.select do |spec, source| 
-              spec.platform == ::Gem::Platform::RUBY && requirement.satisfied_by?(spec.version)
+              (spec.platform == ::Gem::Platform::RUBY || spec.platform.nil?) && requirement.satisfied_by?(spec.version)
             end
             okay_specs.first
           end

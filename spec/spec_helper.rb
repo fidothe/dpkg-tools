@@ -6,7 +6,7 @@ rescue LoadError
   require 'spec'
 end
 
-require 'lib/dpkg-tools'
+require File.dirname(__FILE__) + '/../lib/dpkg-tools'
 
 Spec::Runner.configure do |config|
   config.mock_with :mocha

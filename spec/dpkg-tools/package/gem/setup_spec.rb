@@ -28,6 +28,14 @@ describe DpkgTools::Package::Gem::Setup do
     DpkgTools::Package::Gem::Setup.most_recent_spec_n_source(specs_n_sources)[1].should == 'a_second_uri'
   end
   
+  it "should be able to retrieve the latest version where @spec.platform is unset (where it notionally defaults to RUBY)" do
+    specs_n_sources = [[stub('spec', :platform => Gem::Platform::WIN32), 'a_uri'], 
+                       [stub('spec', :platform => nil), 'a_second_uri'],
+                       [stub('spec', :platform => nil), 'a_third_uri']]
+                       
+    DpkgTools::Package::Gem::Setup.most_recent_spec_n_source(specs_n_sources)[1].should == 'a_second_uri'
+  end
+  
   it "should be able to retrieve specs and sources for a named gem" do
     mock_installer = mock('mock Gem::RemoteInstaller instance')
     mock_installer.expects(:specs_n_sources_matching).with('gem_name', anything).returns(:specs_n_sources)
@@ -108,6 +116,21 @@ describe DpkgTools::Package::Gem::Setup do
                        [stub('spec', :platform => Gem::Platform::RUBY, :version => Gem::Version.create('1.1.0')), 'a_third_uri'],
                        [stub('spec', :platform => Gem::Platform::WIN32, :version => Gem::Version.create('1.0.8')), 'a_fourth_uri'],
                        [stub('spec', :platform => Gem::Platform::RUBY, :version => Gem::Version.create('1.0.8')), 'a_fifth_uri'],
+                       [stub('spec', :platform => Gem::Platform::RUBY, :version => Gem::Version.create('1.0.2')), 'a_sixth_uri'],
+                       [stub('spec', :platform => Gem::Platform::RUBY, :version => Gem::Version.create('0.9.8')), 'a_seventh_uri']]
+    
+    requirement = Gem::Requirement.create(['< 1.1.0', '>= 1.0.0'])
+    
+    DpkgTools::Package::Gem::Setup.most_recent_spec_n_source_satisfying_requirement(requirement, specs_n_sources)[1].
+      should == 'a_fifth_uri'
+  end
+  
+  it "should be able to return the most recent spec_n_source that satisfies a Gem::Requirement from a spec_n_source, even when spec.platform is unset " do
+    specs_n_sources = [[stub('spec', :platform => Gem::Platform::WIN32, :version => Gem::Version.create('1.1.8')), 'a_uri'], 
+                       [stub('spec', :platform => Gem::Platform::RUBY, :version => Gem::Version.create('1.1.8')), 'a_second_uri'],
+                       [stub('spec', :platform => nil, :version => Gem::Version.create('1.1.0')), 'a_third_uri'],
+                       [stub('spec', :platform => Gem::Platform::WIN32, :version => Gem::Version.create('1.0.8')), 'a_fourth_uri'],
+                       [stub('spec', :platform => nil, :version => Gem::Version.create('1.0.8')), 'a_fifth_uri'],
                        [stub('spec', :platform => Gem::Platform::RUBY, :version => Gem::Version.create('1.0.2')), 'a_sixth_uri'],
                        [stub('spec', :platform => Gem::Platform::RUBY, :version => Gem::Version.create('0.9.8')), 'a_seventh_uri']]
     

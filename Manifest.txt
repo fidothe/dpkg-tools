@@ -7,6 +7,7 @@ bin/dpkg-gem
 config/hoe.rb
 config/requirements.rb
 lib/dpkg-tools.rb
+lib/dpkg-tools/command_line.rb
 lib/dpkg-tools/package.rb
 lib/dpkg-tools/package/config.rb
 lib/dpkg-tools/package/gem.rb
@@ -21,6 +22,7 @@ script/destroy
 script/generate
 script/txt2html
 setup.rb
+spec/dpkg-tools/command_line_spec.rb
 spec/dpkg-tools/package/config_spec.rb
 spec/dpkg-tools/package/gem/builder_spec.rb
 spec/dpkg-tools/package/gem/data_spec.rb

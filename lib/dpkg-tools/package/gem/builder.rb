@@ -1,8 +1,16 @@
 require 'rake'
+require 'rubygems'
 require 'rubygems/installer'
 require 'rubygems/doc_manager'
 
 require 'fileutils'
+
+# module GemBindir
+#   class << self
+#   def bindir(install_dir = nil)
+#     
+#   end
+# end
 
 module DpkgTools
   module Package
@@ -49,7 +57,7 @@ module DpkgTools
         end
         
         def override_gem_bindir
-          eval("def Gem.bindir(install_dir = nil)\n\"#{config.bin_install_path}\"\nend\n")
+          ::Gem.module_eval %q{def self.bindir(install_dir = nil) "} + config.bin_install_path + %q{" end}
         end
         
         def install_gem
