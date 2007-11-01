@@ -1,6 +1,7 @@
 require 'stringio'
 require 'zlib'
 require 'rubygems/package'
+require 'rubygems/old_format'
 require 'rubygems/format'
 require 'rubygems/specification'
 require 'rubygems/remote_installer'
@@ -42,7 +43,9 @@ module DpkgTools
           end
           
           def format_from_string(gem_byte_string)
-            ::Gem::Format.from_io(StringIO.new(gem_byte_string))
+            gem_io = StringIO.new(gem_byte_string)
+            return ::Gem::OldFormat.from_io(gem_io) if gem_byte_string[0,20].include?("MD5SUM =")
+            ::Gem::Format.from_io(gem_io)
           end
           
           def gem_uri_from_spec_n_source(spec, source_uri)

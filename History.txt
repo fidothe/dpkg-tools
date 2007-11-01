@@ -1,3 +1,7 @@
+== 0.1.7 2007-10-31
+
+* Correctly handle gems which need to be parsed with Gem::OldFormat
+
 == 0.1.6 2007-10-31
 
 * Allow spec.platform to be nil (as with bluecloth)

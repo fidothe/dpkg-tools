@@ -58,6 +58,13 @@ describe DpkgTools::Package::Gem::Setup do
     DpkgTools::Package::Gem::Setup.format_from_string('gem_byte_string')
   end
   
+  it "should be able to turn an old-format gem's byte string into a Gem::OldFormat" do
+    StringIO.expects(:new).with(anything).returns(:string_io)
+    Gem::OldFormat.expects(:from_io).with(:string_io)
+    
+    DpkgTools::Package::Gem::Setup.format_from_string(File.read(File.dirname(__FILE__) + '/../../../fixtures/BlueCloth-1.0.0.gem'))
+  end
+  
   it "should retrieve the Gem::Format and bytes for a gem given a path to the .gem file" do
     File.expects(:read).with('path/to/package.gem').returns('gem byte string')
     DpkgTools::Package::Gem::Setup.expects(:format_from_string).with('gem byte string').returns(:format)
