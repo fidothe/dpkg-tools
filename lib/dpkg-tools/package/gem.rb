@@ -1,5 +1,6 @@
 require File.join(File.dirname(__FILE__), 'gem/data')
 require File.join(File.dirname(__FILE__), 'gem/setup')
+require File.join(File.dirname(__FILE__), 'gem/metadata')
 require File.join(File.dirname(__FILE__), 'gem/builder')
 require File.join(File.dirname(__FILE__), 'gem/rake')
 
@@ -23,6 +24,14 @@ module DpkgTools
         
         def create_builder(path_to_gem_file)
           Builder.from_file_path(path_to_gem_file)
+        end
+        
+        def config_cache(name_version_pair)
+          name, version = name_version_pair
+          @config_cache ||= {}
+          @config_cache[name_version_pair] ||= DpkgTools::Package::Config.new(name, version, :suffix => 'rubygem')
+          yield(@config_cache[name_version_pair]) if block_given?
+          @config_cache[name_version_pair]
         end
       end
     end

@@ -2,31 +2,31 @@ module DpkgTools
   module Package
     module Metadata
       class << self
-        def write_control_files(gem)
-          Control.generate(gem)
-          Copyright.generate(gem)
-          Changelog.generate(gem)
-          Rules.generate(gem)
-          Rakefile.generate(gem)
+        def write_control_files(metadata)
+          Control.generate(metadata)
+          Copyright.generate(metadata)
+          Changelog.generate(metadata)
+          Rules.generate(metadata)
+          Rakefile.generate(metadata)
         end
       end
       
       class Base
         class << self
-          def file_path(gem)
-            File.join(DpkgTools::Package.config(gem.config_key).send(parent_path), filename)            
+          def file_path(metadata)
+            File.join(metadata.send(:config).send(parent_path), filename)            
           end
           
           def parent_path
             :debian_path
           end
           
-          def write(gem, file_contents)
-            Files.write(self.file_path(gem), file_contents)
+          def write(metadata, file_contents)
+            Files.write(self.file_path(metadata), file_contents)
           end
           
-          def generate(gem)
-            self.write(gem, self.build(gem))
+          def generate(metadata)
+            self.write(metadata, self.build(metadata))
           end
         end
       end
@@ -49,49 +49,78 @@ module DpkgTools
              :description]
           end
           
-          def build(gem)
-            # Read metadata
-            control_file = []
-            # Source (mandatory)
-            control_file << "Source: #{gem.name}-rubygem"
-            # Maintainer (mandatory)
-            control_file << "Maintainer: Matt Patterson <matt@reprocessed.org>"
-            # Uploaders - n/a
-            # Section (recommended)
-            control_file << "Section: libs"
-            # Priority (recommended)
-            control_file << "Priority: optional"
-            # Build-Depends et al
-            build_deps = ["rubygems (>= 0.9.4)", "rake-rubygem (>= 0.7.0)"]
-            gem.spec.dependencies.each do |dependency|
-              entry = ["#{dependency.name}-rubygem"]
+          def field_names_map
+            {:source => "Source", :maintainer => "Maintainer", :uploaders => "Uploaders", 
+             :section => "Section", :priority => "Priority", :build_depends => "Build-Depends", 
+             :build_depends_indep => "Build-Depends-Indep", :build_conflicts => "Build-Conflicts", 
+             :build_conflicts_indep => "Build-Conflicts-Indep", :standards_version => "Standards-Version", 
+             :package => "Package", :architecture => "Architecture", :essential => "Essential", 
+             :depends => "Depends", :recommends => "Recommends", :suggests => "Suggests", 
+             :enhances => "Enhances", :pre_depends => "Pre-Depends", :description => "Description"}
+          end
+          
+          # Dynamically define methods to handle dependency lines (they're all the same bar the name...)
+          [:build_depends, :build_depends_indep, :build_conflicts, :build_conflicts_indep, 
+           :depends, :recommends, :suggests, :enhances, :pre_depends].each do |field_name|
+             define_method(field_name) {|metadata| depends_line(field_name, metadata)}
+          end
+          
+          # generate the Maintainer line
+          def maintainer(metadata)
+            "Maintainer: #{metadata.maintainer[0]} <#{metadata.maintainer[1]}>"
+          end
+          
+          def build(metadata)
+            lines = []
+            # Source 'paragraph'
+            source_field_names.each {|field_name| process_field(field_name, metadata, lines)}
+            
+            # line break to make new debian/control 'paragraph'
+            lines << "" 
+            
+            # Binary 'paragraph'
+            binary_field_names.each {|field_name| process_field(field_name, metadata, lines)}
+            
+            # required final newline
+            lines << ""
+            lines.join("\n")
+          end
+          
+          private
+          
+          def process_field(field_name, metadata, output)
+            if metadata.respond_to?(field_name)
+              if self.respond_to?(field_name)
+                output << self.send(field_name, metadata)
+              else
+                output << "#{field_names_map[field_name]}: #{metadata.send(field_name)}"
+              end
+            end
+          end
+          
+          def deps_string(dependencies)
+            deps = []
+            dependencies.each do |dependency|
+              deps << ([dependency[:name]] + dependency[:requirements].collect {|req| "(#{req})"}).join(" ")
+            end
+            deps.join(", ")
+          end
+          
+          def depends_line(field_name, metadata)
+            "#{field_names_map[field_name]}: #{deps_string(metadata.send(field_name))}"
+          end
+          
+          def base_deps(dependencies)
+            base_deps = []
+            dependencies.each do |dependency|
+              dep_conf = DpkgTools::Package::Config.new(dependency.name, nil, :suffix => 'rubygem')
+              entry = [dep_conf.package_name]
               dependency.version_requirements.as_list.each do |version|
                 entry << "(#{version}-1)"
               end
-              build_deps << entry.join(' ')
+              base_deps << entry.join(' ')
             end
-            control_file << "Build-Depends: #{build_deps.join(', ')}" unless build_deps.empty?
-            # Standards-Version (recommended)
-
-            # The fields in the binary package paragraphs are:
-            control_file << "" # line break to make new debian/control 'paragraph'
-            # Package (mandatory)
-            control_file << "Package: #{gem.name}-rubygem"
-            # Architecture (mandatory)
-            control_file << "Architecture: i386"
-            # Section (recommended)
-            control_file << "Section: libs"
-            # Priority (recommended)
-            control_file << "Priority: optional"
-            # Essential
-            control_file << "Essential: no"
-            # Depends et al
-            control_file << "Depends: #{build_deps.join(', ')}" unless build_deps.empty?
-            # Description (mandatory)
-            control_file << "Description: #{gem.spec.summary}" # NB, currently really fudged (not using the proper description)
-            # for the final newline
-            control_file << ""
-            control_file.join("\n")
+            base_deps
           end
         end
       end
@@ -103,19 +132,8 @@ module DpkgTools
           end
           
           # build debian/copyright file
-          def build(gem)
-            # first, look for LICENSE or MIT-LICENSE in the gem
-            licenses = gem.spec.files.select do |file_path|
-              file_path.match(/license/i)
-            end
-
-            if licenses.size == 1
-              license_path = licenses.first
-              license_files = gem.file_entries.select do |meta, data|
-                meta["path"] == license_path
-              end
-              license_files.first[1]
-            end
+          def build(metadata)
+            metadata.license_file
           end
         end
       end
@@ -127,10 +145,8 @@ module DpkgTools
           end
           
           # build debian/changelog file
-          def build(gem)
-            "#{gem.name}-rubygem (#{gem.version}-1) cp-gutsy; urgency=low\n"\
-            "  * Packaged up #{gem.full_name}\n"\
-            " -- Matt Patterson <matt@reprocessed.org>  #{Time.now.rfc822}\n"
+          def build(metadata)
+            metadata.changelog
           end
         end
       end
@@ -141,14 +157,14 @@ module DpkgTools
             'rules'
           end
           
-          def build(gem)
+          def build(metadata)
             "#!/bin/sh\n" \
             "\n" \
             "/usr/bin/rake $@\n" \
           end
           
-          def write(gem, file_contents)
-            Files.write_executable(self.file_path(gem), file_contents)
+          def write(metadata, file_contents)
+            Files.write_executable(self.file_path(metadata), file_contents)
           end
         end
       end
@@ -163,15 +179,8 @@ module DpkgTools
             :base_path
           end
           
-          def build(gem)
-            conf = DpkgTools::Package.config(gem.config_key)
-            "require 'rubygems'\n" \
-            "require 'dpkg-tools'\n" \
-            "\n" \
-            "DpkgTools::Package::Gem::BuildTasks.new do |t|\n" \
-            "  t.root_path = File.expand_path('../')\n" \
-            "  t.gem_path = File.expand_path('./#{conf.gem_filename}')\n" \
-            "end\n" \
+          def build(metadata)
+            metadata.rakefile
           end
           
           def write(gem, file_contents)

@@ -21,11 +21,10 @@ end
 
 describe DpkgTools::Package::Gem::Builder, "instances" do
   before(:each) do
-    @stub_data = stub("stub DpkgTools::Package::Gem::Data", :name => 'stub_gem', :version => '1.0.8', 
-                 :full_name => 'gem_name-1.0.8', :config_key => ['stub_gem', '1.0.8'])
-    @config = DpkgTools::Package::Config.new('stub_gem', '1.0.8')
+    @config = DpkgTools::Package::Config.new('stub_gem', '1.0.8', :suffix => 'rubygem')
     @config.stubs(:root_path).returns("a/path/to")
-    DpkgTools::Package.stubs(:config).with(['stub_gem', '1.0.8']).returns(@config)
+    @stub_data = stub("stub DpkgTools::Package::Gem::Data", :name => 'stub_gem', :version => '1.0.8', 
+                 :full_name => 'gem_name-1.0.8', :config_key => ['stub_gem', '1.0.8'], :config => @config)
     
     @builder = DpkgTools::Package::Gem::Builder.new(@stub_data, 'gem byte string')
   end
@@ -43,22 +42,22 @@ describe DpkgTools::Package::Gem::Builder, "instances" do
   end
   
   it "should be able to create the debian/tmp buildroot dir" do
-    Dir.expects(:mkdir).with('a/path/to/stub_gem-rubygem-1.0.8/debian/tmp')
-    File.expects(:directory?).with('a/path/to/stub_gem-rubygem-1.0.8/debian/tmp').returns(false)
+    Dir.expects(:mkdir).with('a/path/to/stub-gem-rubygem-1.0.8/debian/tmp')
+    File.expects(:directory?).with('a/path/to/stub-gem-rubygem-1.0.8/debian/tmp').returns(false)
     
     @builder.create_buildroot
   end
   
   it "should be able to create the needed install dirs" do
-    FileUtils.expects(:mkdir_p).with('a/path/to/stub_gem-rubygem-1.0.8/debian/tmp/usr/lib/ruby/gems/1.8')
-    FileUtils.expects(:mkdir_p).with('a/path/to/stub_gem-rubygem-1.0.8/debian/tmp/usr/bin')
+    FileUtils.expects(:mkdir_p).with('a/path/to/stub-gem-rubygem-1.0.8/debian/tmp/usr/lib/ruby/gems/1.8')
+    FileUtils.expects(:mkdir_p).with('a/path/to/stub-gem-rubygem-1.0.8/debian/tmp/usr/bin')
     
     @builder.create_install_dirs
   end
   
   it "should be able to create the buildroot/DEBIAN dir" do
-    Dir.expects(:mkdir).with('a/path/to/stub_gem-rubygem-1.0.8/debian/tmp/DEBIAN')
-    File.expects(:directory?).with('a/path/to/stub_gem-rubygem-1.0.8/debian/tmp/DEBIAN').returns(false)
+    Dir.expects(:mkdir).with('a/path/to/stub-gem-rubygem-1.0.8/debian/tmp/DEBIAN')
+    File.expects(:directory?).with('a/path/to/stub-gem-rubygem-1.0.8/debian/tmp/DEBIAN').returns(false)
     
     @builder.create_DEBIAN_dir
   end
@@ -66,14 +65,14 @@ describe DpkgTools::Package::Gem::Builder, "instances" do
   it "should override Gem.bindir to provide a sensible alternative" do
     @builder.override_gem_bindir
     
-    ::Gem.bindir.should == "a/path/to/stub_gem-rubygem-1.0.8/debian/tmp/usr/bin"
+    ::Gem.bindir.should == "a/path/to/stub-gem-rubygem-1.0.8/debian/tmp/usr/bin"
   end
   
   it "should be able to install the gem into the buildroot" do
     @builder.expects(:override_gem_bindir)
     mock_installer = mock('mock Gem::Installer')
-    mock_installer.expects(:install).with(false, 'a/path/to/stub_gem-rubygem-1.0.8/debian/tmp/usr/lib/ruby/gems/1.8')
-    Gem::Installer.expects(:new).with('a/path/to/stub_gem-rubygem-1.0.8/stub_gem-1.0.8.gem', {:wrappers => true, :env_shebang => true}).
+    mock_installer.expects(:install).with(false, 'a/path/to/stub-gem-rubygem-1.0.8/debian/tmp/usr/lib/ruby/gems/1.8')
+    Gem::Installer.expects(:new).with('a/path/to/stub-gem-rubygem-1.0.8/stub_gem-1.0.8.gem', {:wrappers => true, :env_shebang => true}).
       returns(mock_installer)
     
     @builder.install_gem
@@ -108,9 +107,9 @@ describe DpkgTools::Package::Gem::Builder, "instances" do
   end
   
   it "should be able to create the .deb package" do
-    @builder.stubs(:built_deb_path).returns('a/path/to/stub_gem-rubygem-1.0.8-1_i386.deb')
+    @builder.stubs(:built_deb_path).returns('a/path/to/stub-gem-rubygem-1.0.8-1_i386.deb')
     
-    @builder.expects(:sh).with('dpkg-deb --build "a/path/to/stub_gem-rubygem-1.0.8/debian/tmp" "a/path/to/stub_gem-rubygem-1.0.8-1_i386.deb"')
+    @builder.expects(:sh).with('dpkg-deb --build "a/path/to/stub-gem-rubygem-1.0.8/debian/tmp" "a/path/to/stub-gem-rubygem-1.0.8-1_i386.deb"')
     @builder.create_deb
   end
 end
@@ -132,25 +131,25 @@ end
 
 describe DpkgTools::Package::Gem::Builder, "#remove_build_products" do
   before(:each) do
-    @stub_data = stub("stub DpkgTools::Package::Gem::Data", :name => 'stub_gem', :version => '1.0.8', 
-                 :full_name => 'stub_gem-1.0.8', :config_key => ['stub_gem', '1.0.8'])
-    @config = DpkgTools::Package::Config.new('stub_gem', '1.0.8')
+    @config = DpkgTools::Package::Config.new('stub_gem', '1.0.8', :suffix => 'rubygem')
     @config.stubs(:root_path).returns("a/path/to")
-    DpkgTools::Package.stubs(:config).with(['stub_gem', '1.0.8']).returns(@config)
+    
+    @stub_data = stub("stub DpkgTools::Package::Gem::Data", :name => 'stub_gem', :version => '1.0.8', 
+                 :full_name => 'stub_gem-1.0.8', :config_key => ['stub_gem', '1.0.8'], :config => @config)
     
     @builder = DpkgTools::Package::Gem::Builder.new(@stub_data, 'gem byte string')
   end
   
   it "should only try to remove build products when debian/tmp exists" do
-    File.expects(:exists?).with('a/path/to/stub_gem-rubygem-1.0.8/debian/tmp').returns(false)
+    File.expects(:exists?).with('a/path/to/stub-gem-rubygem-1.0.8/debian/tmp').returns(false)
     FileUtils.expects(:remove_dir).never
     
     @builder.remove_build_products
   end
   
   it "should remove all the build products" do
-    File.expects(:exists?).with('a/path/to/stub_gem-rubygem-1.0.8/debian/tmp').returns(true)
-    FileUtils.expects(:remove_dir).with('a/path/to/stub_gem-rubygem-1.0.8/debian/tmp')
+    File.expects(:exists?).with('a/path/to/stub-gem-rubygem-1.0.8/debian/tmp').returns(true)
+    FileUtils.expects(:remove_dir).with('a/path/to/stub-gem-rubygem-1.0.8/debian/tmp')
     
     @builder.remove_build_products
   end

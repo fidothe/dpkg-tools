@@ -14,11 +14,12 @@ module DpkgTools
         attr_accessor :root_path
       end
       
-      attr_accessor :name, :version
+      attr_reader :name, :version
       
-      def initialize(name, version)
+      def initialize(name, version, options = {})
         @name = name
         @version = version
+        @options = options
       end
       
       def full_name
@@ -26,15 +27,16 @@ module DpkgTools
       end
       
       def package_name
-        @name + '-rubygem'
+        @name.downcase.tr("_", "-") + (@options[:suffix].nil? ? '' : "-#{@options[:suffix]}")
       end
       
       def package_dir_name
-        "#{package_name}-#{version}"
+        File.basename(base_path)
       end
       
       def base_path
-        File.join(root_path, "#{name}-rubygem-#{version}")
+        return @options[:base_path] if @options.has_key?(:base_path)
+        File.join(root_path, "#{package_name}-#{version}")
       end
       
       def root_path
@@ -69,8 +71,20 @@ module DpkgTools
         File.join(buildroot, 'usr/lib/ruby/gems/1.8')
       end
       
+      def etc_install_path
+        File.join(buildroot, 'etc')
+      end
+      
       def buildroot_DEBIAN_path
         File.join(buildroot, 'DEBIAN')
+      end
+      
+      def deb_filename(deb_arch)
+        "#{package_name}_#{deb_version}_#{deb_arch}.deb"
+      end
+      
+      def deb_version
+        "#{version}-1"
       end
     end
   end

@@ -11,8 +11,8 @@ module DpkgTools
     module Gem
       class Setup
         class << self
-          def write_gem_file(conf_key, gem_byte_string)
-            File.open(DpkgTools::Package.config(conf_key).gem_path, 'wb') {|f| f.write(gem_byte_string)}
+          def write_gem_file(config, gem_byte_string)
+            File.open(config.gem_path, 'wb') {|f| f.write(gem_byte_string)}
           end
           
           def most_recent_spec_n_source(specs_n_sources)
@@ -86,22 +86,20 @@ module DpkgTools
             self.new(Gem::Data.new(format), gem_byte_string)
           end
           
-          def write_orig_tarball(conf_key, gem_byte_string)
-            conf = DpkgTools::Package.config(conf_key)
-
+          def write_orig_tarball(config, gem_byte_string)
             output_io = StringIO.new
             gz_io = Zlib::GzipWriter.new(output_io)
             tar_io = StringIO.new
             ::Gem::Package::TarWriter.new(tar_io) do |tar_stream|
-              tar_stream.mkdir(conf.package_dir_name, 0755)
-              tar_stream.add_file("#{conf.package_dir_name}/#{conf.gem_filename}", 0644) {|f| f.write(gem_byte_string) }
+              tar_stream.mkdir(config.package_dir_name, 0755)
+              tar_stream.add_file("#{config.package_dir_name}/#{config.gem_filename}", 0644) {|f| f.write(gem_byte_string) }
             end
             tar_io.flush
             tar_io.rewind
             gz_io.write(tar_io.read)
             gz_io.finish
             output_io.rewind
-            File.open(File.join(conf.orig_tarball_path), 'w') do |f| 
+            File.open(File.join(config.orig_tarball_path), 'w') do |f| 
               f.write(output_io.read)
             end
           end
@@ -134,19 +132,19 @@ module DpkgTools
         end
         
         def write_orig_tarball
-          self.class.write_orig_tarball(data.config_key, gem_byte_string)
+          self.class.write_orig_tarball(data.config, gem_byte_string)
         end
         
         def write_gem_file
-          self.class.write_gem_file(data.config_key, gem_byte_string)
+          self.class.write_gem_file(data.config, gem_byte_string)
         end
         
         def write_control_files
-          DpkgTools::Package::Metadata.write_control_files(data)
+          DpkgTools::Package::Metadata.write_control_files(DpkgTools::Package::Gem::Metadata.new(data, data.config))
         end
         
         def create_structure
-          DpkgTools::Package.check_package_dir(DpkgTools::Package.config(config_key).base_path)
+          DpkgTools::Package.check_package_dir(data.config)
           write_orig_tarball
           write_gem_file
           write_control_files

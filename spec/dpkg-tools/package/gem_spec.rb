@@ -38,6 +38,27 @@ describe DpkgTools::Package::Gem do
   end
 end
 
+describe DpkgTools::Package::Gem, ".config_cache method" do
+  before(:each) do
+    DpkgTools::Package::Gem.instance_variable_set(:@config_cache, {})
+  end
+  
+  it "should create and return a DpkgTools::Package::Config instance corresponding to the given full name key" do
+    DpkgTools::Package::Config.expects(:new).with('gem_name', '1.0.8', {:suffix => 'rubygem'}).returns(:config)
+    DpkgTools::Package::Gem.config_cache(['gem_name', '1.0.8']).should == :config
+  end
+  
+  it "should only create and return a single DpkgTools::Package::Config instance" do
+    DpkgTools::Package::Gem.config_cache(['gem_name', '1.0.8']).should === DpkgTools::Package::Gem.config_cache(['gem_name', '1.0.8'])
+  end
+  
+  it "should yield the Config instance if passed a block" do
+    result = nil
+    DpkgTools::Package::Gem.config_cache(['gem_name', '1.0.8']) {|cfg| result = cfg}
+    result.should == DpkgTools::Package::Gem.config_cache(['gem_name', '1.0.8'])
+  end
+end
+
 describe DpkgTools::Package::Gem, ".create_builder" do
   it "should instantiate a Package::Gem::Data and a Package::Gem::Builder and make 'em work" do
     DpkgTools::Package::Gem::Builder.expects(:from_file_path).with('a/path/to/stub_gem-1.1.0/stub_gem-1.1.0.gem').returns(:builder)

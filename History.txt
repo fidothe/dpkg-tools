@@ -1,3 +1,19 @@
+== 0.1.11 2007-11-13
+
+* Fix bug in dependency name generation for debian/control
+
+== 0.1.10 2007-11-13
+
+* Fix generation of deb_filename
+
+== 0.1.9 2007-11-13
+
+* Fix bad changelog and control file generation
+
+== 0.1.8 2007-11-13
+
+* Correctly handle gems which have underscores or capitalisation in their names
+
 == 0.1.7 2007-10-31
 
 * Correctly handle gems which need to be parsed with Gem::OldFormat

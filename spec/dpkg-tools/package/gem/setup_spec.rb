@@ -7,12 +7,13 @@ describe DpkgTools::Package::Gem::Setup do
   # end
   
   it "should be able to write a .gem file to the correct place" do
-    DpkgTools::Package::Config.root_path = "a/path"
+    DpkgTools::Package::Config.root_path = "a/path/to"
+    config = stub("DpkgTools::Package::Config", :gem_path => 'a/path/to/.gem')
     mock_file = mock('mock File')
     mock_file.expects(:write).with('gem byte string')
-    File.expects(:open).with('a/path/gem_name-rubygem-1.0.8/gem_name-1.0.8.gem', 'wb').yields(mock_file)
+    File.expects(:open).with('a/path/to/.gem', 'wb').yields(mock_file)
     
-    DpkgTools::Package::Gem::Setup.write_gem_file(['gem_name', '1.0.8'], 'gem byte string')
+    DpkgTools::Package::Gem::Setup.write_gem_file(config, 'gem byte string')
   end
   
   it "should be able to retrieve a gem given its URL" do
@@ -203,8 +204,10 @@ end
 
 describe DpkgTools::Package::Gem::Setup, "instances" do
   before(:each) do
+    @config = DpkgTools::Package::Config.new('gem_name', '1.0.8', :suffix => 'rubygem')
     @data = stub("stub DpkgTools::Package::Gem::Data", :name => 'gem_name', :version => '1.0.8', 
-                 :full_name => 'gem_name-1.0.8', :config_key => ['gem_name', '1.0.8'])
+                 :full_name => 'gem_name-1.0.8', :config_key => ['gem_name', '1.0.8'], :config => @config)
+    
     @setup = DpkgTools::Package::Gem::Setup.new(@data, 'gem byte string')
   end
   
@@ -217,19 +220,20 @@ describe DpkgTools::Package::Gem::Setup, "instances" do
   end
   
   it "should be able to write a .orig.tar.gz file with the gem in" do
-    DpkgTools::Package::Gem::Setup.expects(:write_orig_tarball).with(['gem_name', '1.0.8'], 'gem byte string')
+    DpkgTools::Package::Gem::Setup.expects(:write_orig_tarball).with(@config, 'gem byte string')
     
     @setup.write_orig_tarball
   end
   
   it "should be able to write the .gem file" do
-    DpkgTools::Package::Gem::Setup.expects(:write_gem_file).with(['gem_name', '1.0.8'], 'gem byte string')
+    DpkgTools::Package::Gem::Setup.expects(:write_gem_file).with(@config, 'gem byte string')
     
     @setup.write_gem_file
   end
   
   it "should be able to call DpkgTools::Package::Metadata to write out the debian control files" do
-    DpkgTools::Package::Metadata.expects(:write_control_files).with(@setup.data)
+    DpkgTools::Package::Gem::Metadata.expects(:new).with(@setup.data, @setup.data.config).returns(:metadata)
+    DpkgTools::Package::Metadata.expects(:write_control_files).with(:metadata)
     @setup.write_control_files
   end
   
@@ -238,10 +242,7 @@ describe DpkgTools::Package::Gem::Setup, "instances" do
   end
   
   it "should be able to perform all the steps needed to create the package structure" do
-    stub_config = stub('stub DpkgTools::Package::Config', :base_path => 'a/path/to/gem_name-1.0.8')
-    DpkgTools::Package.expects(:config).at_least_once.with(['gem_name', '1.0.8']).returns(stub_config)
-    
-    DpkgTools::Package.expects(:check_package_dir).with('a/path/to/gem_name-1.0.8')
+    DpkgTools::Package.expects(:check_package_dir).with(@config)
     
     @setup.expects(:write_orig_tarball)
     @setup.expects(:write_gem_file)

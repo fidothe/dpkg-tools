@@ -40,7 +40,7 @@ module DpkgTools
         end
         
         def config
-          DpkgTools::Package.config(data.config_key)
+          data.config
         end
         
         def create_buildroot
@@ -61,7 +61,6 @@ module DpkgTools
         end
         
         def install_gem
-          conf = DpkgTools::Package.config(data.config_key)
           override_gem_bindir
           installer = ::Gem::Installer.new(config.gem_path, {:wrappers => true, :env_shebang => true})
           installer.install(false, config.gem_install_path)

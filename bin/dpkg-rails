@@ -3,4 +3,4 @@ $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + "/../lib"))
 
 require 'dpkg-tools/command_line'
 
-DpkgTools::CommandLine::Gem.run(ARGV, STDERR, STDOUT)
+DpkgTools::CommandLine::Rails.run(ARGV, STDERR, STDOUT)

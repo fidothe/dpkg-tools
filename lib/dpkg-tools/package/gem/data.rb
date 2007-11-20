@@ -2,11 +2,13 @@ module DpkgTools
   module Package
     module Gem
       class Data
-        attr_reader :spec
+        attr_reader :spec, :config
         
         def initialize(format)
           @format = format
           @spec = format.spec
+          
+          @config = DpkgTools::Package::Config.new(name, version, :suffix => "rubygem")
         end
         
         def name
@@ -25,6 +27,10 @@ module DpkgTools
           [self.name, self.version]
         end
         
+        def files
+          @spec.files
+        end
+        
         def file_entries
           @format.file_entries
         end
@@ -38,11 +44,15 @@ module DpkgTools
         end
         
         def deb_filename
-          "#{name}-rubygem_#{version}-#{debian_revision}_#{debian_arch}.deb"
+          @config.deb_filename(debian_arch)
         end
         
         def dependencies
           @spec.dependencies
+        end
+        
+        def summary
+          @spec.summary
         end
       end
     end

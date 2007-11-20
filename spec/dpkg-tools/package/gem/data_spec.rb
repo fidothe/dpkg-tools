@@ -6,7 +6,14 @@ describe DpkgTools::Package::Gem::Data, ".new" do
   end
   
   it "should require one argument" do
-    stub_format = stub('stub Gem::Format', :spec => :spec)
+    version = stub('Version', :to_s => '1.0.8')
+    stub_spec = stub("stub Gem::Specification", :name => 'gem_name', :version => version, 
+                                                :full_name => 'gem_name-1.0.8', :dependencies => :deps,
+                                                :summary => 'A gem', :files => :files)
+    stub_format = stub('stub Gem::Format', :spec => stub_spec)
+    
+    DpkgTools::Package::Config.expects(:new).with('gem_name', '1.0.8', :suffix => 'rubygem')
+    
     DpkgTools::Package::Gem::Data.new(stub_format)
   end
 end
@@ -15,7 +22,8 @@ describe DpkgTools::Package::Gem::Data, "instances" do
   before(:each) do
     version = stub('Version', :to_s => '1.0.8')
     @spec = stub("stub Gem::Specification", :name => 'gem_name', :version => version, 
-                                            :full_name => 'gem_name-1.0.8', :dependencies => :deps)
+                                            :full_name => 'gem_name-1.0.8', :dependencies => :deps,
+                                            :summary => 'A gem', :files => :files)
     @format = stub("stub Gem::Format", :spec => @spec, :file_entries => :file_entries)
     @data = DpkgTools::Package::Gem::Data.new(@format)
   end
@@ -44,6 +52,10 @@ describe DpkgTools::Package::Gem::Data, "instances" do
     @data.file_entries.should == :file_entries
   end
   
+  it "should provide access to the Gem::Specification's files attribute" do
+    @data.files.should == :files
+  end
+  
   it "should provide access to the changelog-derived debian_revision" do
     @data.debian_revision.should == "1"
   end
@@ -53,10 +65,18 @@ describe DpkgTools::Package::Gem::Data, "instances" do
   end
   
   it "should provide access to the filename the built .deb will have" do
-    @data.deb_filename.should == "gem_name-rubygem_1.0.8-1_i386.deb"
+    @data.deb_filename.should == "gem-name-rubygem_1.0.8-1_i386.deb"
   end
   
   it "should provide access to any dependencies" do
     @data.dependencies.should == :deps
+  end
+  
+  it "should provide access to the summary from the spec" do
+    @data.summary.should == @spec.summary
+  end
+  
+  it "should provide access to its associated config instance" do
+    @data.config.should be_an_instance_of(DpkgTools::Package::Config)
   end
 end
