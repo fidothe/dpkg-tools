@@ -14,11 +14,7 @@ module DpkgTools
       class Base
         class << self
           def file_path(metadata)
-            File.join(metadata.send(:config).send(parent_path), filename)            
-          end
-          
-          def parent_path
-            :debian_path
+            File.join(metadata.config.debian_path, filename)            
           end
           
           def write(metadata, file_contents)
@@ -171,20 +167,16 @@ module DpkgTools
       
       class Rakefile < Base
         class << self
-          def filename
-            'Rakefile'
-          end
-          
-          def parent_path
-            :base_path
+          def file_path(metadata)
+            metadata.data.rakefile_path
           end
           
           def build(metadata)
             metadata.rakefile
           end
           
-          def write(gem, file_contents)
-            Files.write_executable(self.file_path(gem), file_contents)
+          def write(metadata, file_contents)
+            Files.write_executable(self.file_path(metadata), file_contents)
           end
         end
       end

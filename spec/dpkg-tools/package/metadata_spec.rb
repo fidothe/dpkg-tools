@@ -116,8 +116,12 @@ describe DpkgTools::Package::Metadata::Rules, "Can generate a debian/rules file"
 end
 
 describe DpkgTools::Package::Metadata::Rakefile, "Can generate a the Rakefile for package build" do
-  it "should return the correct filename" do
-    DpkgTools::Package::Metadata::Rakefile.filename.should == 'Rakefile'
+  it "should be able to construct the correct path for the rakefile" do
+    stub_data = stub('stub DpkgTools::Package::Blah::Data', :rakefile_path => "a/path/to/Rakefile")
+    stub_metadata = stub('stub DpkgTools::Package::Blah::Metadata', 
+                    :data => stub_data)
+    
+    DpkgTools::Package::Metadata::Rakefile.file_path(stub_metadata).should == "a/path/to/Rakefile"
   end
   
   it "should grab the rakefile from the metadata object" do

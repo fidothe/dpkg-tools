@@ -54,6 +54,10 @@ module DpkgTools
         def summary
           @spec.summary
         end
+        
+        def rakefile_path
+          File.join(@config.base_path, 'Rakefile')
+        end
       end
     end
   end

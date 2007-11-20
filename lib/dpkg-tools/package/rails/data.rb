@@ -12,7 +12,7 @@ module DpkgTools
         
         def initialize(base_path)
           @data = self.class.load_package_data(base_path)
-          @config = DpkgTools::Package::Config.new(name, version)
+          @config = DpkgTools::Package::Config.new(name, version, :base_path => base_path)
         end
         
         def name
@@ -33,6 +33,10 @@ module DpkgTools
         
         def deb_filename
           @config.deb_filename(debian_arch)
+        end
+        
+        def rakefile_path
+          File.join(@config.base_path, 'lib/tasks/dpkg-tools.rake')
         end
       end
     end

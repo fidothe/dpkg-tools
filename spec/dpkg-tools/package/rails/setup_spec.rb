@@ -76,6 +76,7 @@ describe DpkgTools::Package::Rails::Setup, "instances" do
     stub_config = stub('stub DpkgTools::Package::Config', :base_path => 'a/path/to/rails-app-name-1.0.8')
     @setup.stubs(:config).returns(stub_config)
     
+    DpkgTools::Package::Rails::Setup.expects(:create_config_files).with('a/path/to/rails-app-name-1.0.8')
     DpkgTools::Package.expects(:check_package_dir).with('a/path/to/rails-app-name-1.0.8')
     
     @setup.expects(:write_control_files)

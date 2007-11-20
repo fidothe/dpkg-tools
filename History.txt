@@ -1,3 +1,7 @@
+== 0.2.2 2007-11-20
+
+* Added Rails apache 2.2 / mod_proxy_balancer to the supported packages
+
 == 0.1.11 2007-11-13
 
 * Fix bug in dependency name generation for debian/control

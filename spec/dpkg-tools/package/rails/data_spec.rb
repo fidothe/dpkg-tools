@@ -15,7 +15,7 @@ describe DpkgTools::Package::Rails::Data, ".new" do
   
   it "should take the rails app base path, then read in the config/deb.yml" do
     DpkgTools::Package::Rails::Data.expects(:load_package_data).with('base_path').returns({'name' => 'rails-app', 'version' => '1.0.8'})
-    DpkgTools::Package::Config.expects(:new).with('rails-app', '1.0.8').returns(:config)
+    DpkgTools::Package::Config.expects(:new).with('rails-app', '1.0.8', :base_path => 'base_path').returns(:config)
     DpkgTools::Package::Rails::Data.new('base_path').should be_an_instance_of(DpkgTools::Package::Rails::Data)
   end
 end
@@ -40,5 +40,9 @@ describe DpkgTools::Package::Rails::Data, "instances" do
   
   it "should provide access to the debian architecture name" do
     @data.debian_arch.should == "all"
+  end
+  
+  it "should provide access to the path where its package Rakefile should live" do
+    @data.rakefile_path.should == 'base_path/lib/tasks/dpkg-tools.rake'
   end
 end

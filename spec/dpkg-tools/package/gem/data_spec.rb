@@ -20,6 +20,7 @@ end
 
 describe DpkgTools::Package::Gem::Data, "instances" do
   before(:each) do
+    DpkgTools::Package::Config.root_path = '/a/path/to'
     version = stub('Version', :to_s => '1.0.8')
     @spec = stub("stub Gem::Specification", :name => 'gem_name', :version => version, 
                                             :full_name => 'gem_name-1.0.8', :dependencies => :deps,
@@ -78,5 +79,10 @@ describe DpkgTools::Package::Gem::Data, "instances" do
   
   it "should provide access to its associated config instance" do
     @data.config.should be_an_instance_of(DpkgTools::Package::Config)
+  end
+  
+  
+  it "should provide access to the path where its package Rakefile should live" do
+    @data.rakefile_path.should == '/a/path/to/gem-name-rubygem-1.0.8/Rakefile'
   end
 end

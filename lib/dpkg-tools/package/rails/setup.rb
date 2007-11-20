@@ -40,6 +40,7 @@ module DpkgTools
         
         def create_structure
           DpkgTools::Package.check_package_dir(config.base_path)
+          self.class.create_config_files(config.base_path)
           write_control_files
         end
         
