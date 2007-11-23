@@ -17,6 +17,14 @@ module DpkgTools
           @config = config
         end
         
+        def debian_path
+          @config.debian_path
+        end
+        
+        def rakefile_path
+          @data.rakefile_path
+        end
+        
         private
         
         attr_reader :data, :config

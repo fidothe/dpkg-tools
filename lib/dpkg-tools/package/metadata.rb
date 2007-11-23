@@ -14,7 +14,7 @@ module DpkgTools
       class Base
         class << self
           def file_path(metadata)
-            File.join(metadata.config.debian_path, filename)            
+            File.join(metadata.debian_path, filename)            
           end
           
           def write(metadata, file_contents)
@@ -97,26 +97,14 @@ module DpkgTools
           def deps_string(dependencies)
             deps = []
             dependencies.each do |dependency|
-              deps << ([dependency[:name]] + dependency[:requirements].collect {|req| "(#{req})"}).join(" ")
+              reqs = dependency.has_key?(:requirements) ? dependency[:requirements].collect {|req| "(#{req})"} : []
+              deps << ([dependency[:name]] + reqs).join(" ")
             end
             deps.join(", ")
           end
           
           def depends_line(field_name, metadata)
             "#{field_names_map[field_name]}: #{deps_string(metadata.send(field_name))}"
-          end
-          
-          def base_deps(dependencies)
-            base_deps = []
-            dependencies.each do |dependency|
-              dep_conf = DpkgTools::Package::Config.new(dependency.name, nil, :suffix => 'rubygem')
-              entry = [dep_conf.package_name]
-              dependency.version_requirements.as_list.each do |version|
-                entry << "(#{version}-1)"
-              end
-              base_deps << entry.join(' ')
-            end
-            base_deps
           end
         end
       end
@@ -168,7 +156,7 @@ module DpkgTools
       class Rakefile < Base
         class << self
           def file_path(metadata)
-            metadata.data.rakefile_path
+            metadata.rakefile_path
           end
           
           def build(metadata)
@@ -177,6 +165,18 @@ module DpkgTools
           
           def write(metadata, file_contents)
             Files.write_executable(self.file_path(metadata), file_contents)
+          end
+        end
+      end
+      
+      class MaintainerScripts
+        class << self
+          def process(script_name, metadata)
+            
+          end
+          
+          def generate(metadata)
+            metadata.maintainer_scripts.each {|script_name| process(script_name, metadata)}
           end
         end
       end

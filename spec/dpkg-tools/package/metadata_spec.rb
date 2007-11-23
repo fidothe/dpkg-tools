@@ -10,9 +10,8 @@ describe DpkgTools::Package::Metadata::Base, "Can generate a debian/* file" do
   end
   
   it "should be able to construct the correct path for a file" do
-    stub_config = stub('stub DpkgTools::Package::Config', :debian_path => "a/path/to/debian")
     stub_metadata = stub('stub DpkgTools::Package::Gem', 
-                    :config => stub_config)
+                    :debian_path => "a/path/to/debian")
     
     DpkgTools::Package::Metadata::Base.stubs(:filename).returns('control')
     
@@ -59,6 +58,18 @@ describe DpkgTools::Package::Metadata::Control, "Can generate a debian/control f
     stub_metadata = stub('package metadata object', :depends => [{:name => "dependency", :requirements => [">= 1.0.0-1"]}])
     
     DpkgTools::Package::Metadata::Control.send(:depends_line, :depends, stub_metadata).should == "Depends: dependency (>= 1.0.0-1)"
+  end
+  
+  it "should be able to correctly construct a dependencies line which has no requirements" do
+    stub_metadata = stub('package metadata object', :depends => [{:name => "dependency", :requirements => []}])
+    
+    DpkgTools::Package::Metadata::Control.send(:depends_line, :depends, stub_metadata).should == "Depends: dependency"
+  end
+  
+  it "should be able to correctly construct a dependencies line which has requirements unset" do
+    stub_metadata = stub('package metadata object', :depends => [{:name => "dependency"}])
+    
+    DpkgTools::Package::Metadata::Control.send(:depends_line, :depends, stub_metadata).should == "Depends: dependency"
   end
   
   it "should be able to correctly construct a Maintainer line" do
@@ -115,11 +126,10 @@ describe DpkgTools::Package::Metadata::Rules, "Can generate a debian/rules file"
   end
 end
 
-describe DpkgTools::Package::Metadata::Rakefile, "Can generate a the Rakefile for package build" do
+describe DpkgTools::Package::Metadata::Rakefile, "Can generate the Rakefile for package build" do
   it "should be able to construct the correct path for the rakefile" do
-    stub_data = stub('stub DpkgTools::Package::Blah::Data', :rakefile_path => "a/path/to/Rakefile")
     stub_metadata = stub('stub DpkgTools::Package::Blah::Metadata', 
-                    :data => stub_data)
+                    :rakefile_path => "a/path/to/Rakefile")
     
     DpkgTools::Package::Metadata::Rakefile.file_path(stub_metadata).should == "a/path/to/Rakefile"
   end
@@ -129,6 +139,19 @@ describe DpkgTools::Package::Metadata::Rakefile, "Can generate a the Rakefile fo
     mock_metadata.expects(:rakefile).returns("rakefile")
     
     DpkgTools::Package::Metadata::Rakefile.build(mock_metadata).should == "rakefile"
+  end
+end
+
+describe DpkgTools::Package::Metadata::MaintainerScripts, "Can generate any maintainer scripts needed" do
+  before(:each) do
+    @stub_metadata = stub('stub DpkgTools::Package::Blah::Metadata', 
+                          :maintainer_scripts => ['post-inst'])
+  end
+  
+  it "should be able to figure out if any maintainer scripts are needed" do
+    DpkgTools::Package::Metadata::MaintainerScripts.expects(:process).with('post-inst', @stub_metadata)
+    
+    DpkgTools::Package::Metadata::MaintainerScripts.generate(@stub_metadata)
   end
 end
 

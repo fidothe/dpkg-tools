@@ -8,8 +8,8 @@ module DpkgTools
             "require 'dpkg-tools'\n" \
             "\n" \
             "DpkgTools::Package::Gem::BuildTasks.new do |t|\n" \
-            "  t.root_path = File.expand_path('../')\n" \
-            "  t.gem_path = File.expand_path('./#{config.gem_filename}')\n" \
+            "  t.root_path = File.dirname(Rake.original_dir)\n" \
+            "  t.gem_path = File.join(Rake.original_dir, '#{config.gem_filename}')\n" \
             "end\n"
           end
         end

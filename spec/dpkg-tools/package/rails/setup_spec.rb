@@ -22,6 +22,13 @@ describe DpkgTools::Package::Rails::Setup, "creating config files" do
     DpkgTools::Package::Rails::Setup.create_apache_conf_template('base_path')
   end
   
+  it "should be able to copy across a sample deb.yml file" do
+    DpkgTools::Package::Rails::Setup.expects(:resources_path).returns('/a/path/to/resources')
+    FileUtils.expects(:cp).with('/a/path/to/resources/deb.yml', 'base_path/config/deb.yml')
+    
+    DpkgTools::Package::Rails::Setup.create_deb_yaml('base_path')
+  end
+  
   it "should be able to call mongrel_cluster's config creator to create a config.yml for mongrel_cluster" do
     DpkgTools::Package::Rails::Setup.expects(:resources_path).returns('/a/path/to/resources')
     FileUtils.expects(:cp).with('/a/path/to/resources/mongrel_cluster.yml', 'base_path/config/mongrel_cluster.yml')
@@ -31,6 +38,7 @@ describe DpkgTools::Package::Rails::Setup, "creating config files" do
   
   it "should be able to create the base config files" do
     DpkgTools::Package::Rails::Setup.expects(:create_apache_conf_template).with('base_path')
+    DpkgTools::Package::Rails::Setup.expects(:create_deb_yaml).with('base_path')
     DpkgTools::Package::Rails::Setup.expects(:create_mongrel_cluster_conf_yaml).with('base_path')
     
     DpkgTools::Package::Rails::Setup.create_config_files('base_path')
@@ -58,26 +66,25 @@ end
 
 describe DpkgTools::Package::Rails::Setup, "instances" do
   before(:each) do
-    @data = stub("stub DpkgTools::Package::Gem::Data", :name => 'rails-app-name', :version => '1.0.8', 
+    @data = stub("stub DpkgTools::Package::Rails::Data", :name => 'rails-app-name', :version => '1.0.8', 
                  :full_name => 'rails-app-name-1.0.8')
     @setup = DpkgTools::Package::Rails::Setup.new(@data, 'base_path')
   end
   
-  it "should provide access to its Package::Gem::Data" do
+  it "should provide access to its Package::Rails::Data" do
     @setup.data.should == @data
   end
   
   it "should be able to call DpkgTools::Package::Metadata to write out the debian control files" do
-    DpkgTools::Package::Metadata.expects(:write_control_files).with(@setup.data)
+    DpkgTools::Package::Rails::Metadata.expects(:new).with(@setup.data, @setup.config).returns(:metadata)
+    DpkgTools::Package::Metadata.expects(:write_control_files).with(:metadata)
     @setup.write_control_files
   end
   
   it "should be able to perform all the steps needed to create the package structure" do
-    stub_config = stub('stub DpkgTools::Package::Config', :base_path => 'a/path/to/rails-app-name-1.0.8')
-    @setup.stubs(:config).returns(stub_config)
+    @setup.stubs(:config).returns(:config)
     
-    DpkgTools::Package::Rails::Setup.expects(:create_config_files).with('a/path/to/rails-app-name-1.0.8')
-    DpkgTools::Package.expects(:check_package_dir).with('a/path/to/rails-app-name-1.0.8')
+    DpkgTools::Package.expects(:check_package_dir).with(:config)
     
     @setup.expects(:write_control_files)
     

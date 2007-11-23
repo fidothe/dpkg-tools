@@ -1,0 +1,14 @@
+#!/bin/bash -e
+
+# Make the app's DB
+DB_CREATION_STRING = 
+
+mysql -u root <<EOT
+CREATE DATABASE app-db-test;
+CREATE DATABASE app-db-production;
+GRANT ALL PRIVILEGES ON app-db-test.* TO `app-user`@localhost;
+GRANT ALL PRIVILEGES ON app-db-production.* TO `app-user`@localhost;
+EOT
+
+# invoke update-rc.d to get the app's init script loaded
+update-rc.d "app-name" defaults 90

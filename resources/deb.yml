@@ -1,0 +1,18 @@
+name: "rails-app"
+version: "1.0"
+license: "(c) Matt Patterson, 2007"
+# To add dependencies, follow this pattern:
+# By default, most of the things you'll need are added for you
+# without you having to add them here:
+# Rails, Rake, MySQL client & server, Apache 2.2, mod_proxy_balancer,
+# Mongrel, mongrel_cluster
+#
+# dependencies:
+#   gems:
+#     - rspec: ">= 1.0.8"
+#     - redcloth: 
+#       - ">= 1.0.0"
+#       - "< 2.0.0"
+#   packages:
+#     - mysql-client
+#     - mysql-server

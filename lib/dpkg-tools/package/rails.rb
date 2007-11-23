@@ -13,6 +13,7 @@ module DpkgTools
         end
         
         def setup_from_path(path_to_app)
+          Setup.create_config_files(path_to_app)
           Setup.from_path(path_to_app).create_structure
         end
       end

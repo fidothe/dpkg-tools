@@ -11,8 +11,8 @@ describe DpkgTools::Package::Gem::MetadataModules::Rakefile do
     "require 'dpkg-tools'\n" \
     "\n" \
     "DpkgTools::Package::Gem::BuildTasks.new do |t|\n" \
-    "  t.root_path = File.expand_path('../')\n" \
-    "  t.gem_path = File.expand_path('./gem-name-1.0.8.gem')\n" \
+    "  t.root_path = File.dirname(Rake.original_dir)\n" \
+    "  t.gem_path = File.join(Rake.original_dir, 'gem-name-1.0.8.gem')\n" \
     "end\n"
   end
 end

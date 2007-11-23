@@ -2,9 +2,7 @@ require File.dirname(__FILE__) + '/../../../../spec_helper'
 
 describe DpkgTools::Package::Rails::MetadataModules::Control, "instances can generate the package metadata for a debian/control file" do
   before(:each) do
-    stub_requirement = stub('stub Gem::Requirement', :as_list => [">= 0.0.0"])
-    @mock_dep_list = [stub('stub Gem::Dependency', :name => 'whatagem', :version_requirements => stub_requirement)]
-    @stub_data = stub('stub DpkgTools::Package::Rails::Data', :dependencies => @mock_dep_list, :summary => "Test rails app for testing",
+    @stub_data = stub('stub DpkgTools::Package::Rails::Data', :dependencies => :deps, :build_dependencies => :build_deps, :summary => "Test rails app for testing",
                       :debian_arch => 'all')
     @stub_config = DpkgTools::Package::Config.new('rails-app', '1.0.8')
     
@@ -27,15 +25,8 @@ describe DpkgTools::Package::Rails::MetadataModules::Control, "instances can gen
   it "should be able to generate the Priority: line" do
     @metadata.priority.should == 'optional'
   end
-  
-  it "should be able to generate a sensible list of deps" do
-    @metadata.send(:base_deps, @mock_dep_list).should == [{:name => "whatagem-rubygem", :requirements => [">= 0.0.0-1"]}]
-  end
-  
   it "should be able to generate Build-Depends: line" do
-    @metadata.build_depends.should == [{:name => "rake-rubygem", :requirements => [">= 0.7.0-1"]},
-                                       {:name => "rails-rubygem", :requirement => [">= 1.2.5-1"]},
-                                       {:name => "whatagem-rubygem", :requirements => [">= 0.0.0-1"]}]
+    @metadata.build_depends.should == :build_deps
   end
   
   it "should be able to generate the Standards-Version: line" do
@@ -51,9 +42,7 @@ describe DpkgTools::Package::Rails::MetadataModules::Control, "instances can gen
   end
   
   it "should be able to generate the Depends: line" do
-    @metadata.depends.should == [{:name => "rake-rubygem", :requirements => [">= 0.7.0-1"]},
-                                 {:name => "rails-rubygem", :requirement => [">= 1.2.5-1"]},
-                                 {:name => "whatagem-rubygem", :requirements => [">= 0.0.0-1"]}]
+    @metadata.depends.should == :deps
   end
   
   it "should be able to generate the Essential: line" do

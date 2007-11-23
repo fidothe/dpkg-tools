@@ -13,6 +13,10 @@ module DpkgTools
             File.expand_path(File.join(File.dirname(__FILE__), '../../../../resources'))
           end
           
+          def create_deb_yaml(base_path)
+            FileUtils.cp(File.join(resources_path, 'deb.yml'), File.join(base_path, 'config/deb.yml'))
+          end
+          
           def create_apache_conf_template(base_path)
             FileUtils.cp(File.join(resources_path, 'apache.conf.erb'), File.join(base_path, 'config/apache.conf.erb'))
           end
@@ -24,6 +28,7 @@ module DpkgTools
           def create_config_files(base_path)
             create_mongrel_cluster_conf_yaml(base_path)
             create_apache_conf_template(base_path)
+            create_deb_yaml(base_path)
           end
         end
         
@@ -39,13 +44,12 @@ module DpkgTools
         end
         
         def create_structure
-          DpkgTools::Package.check_package_dir(config.base_path)
-          self.class.create_config_files(config.base_path)
+          DpkgTools::Package.check_package_dir(config)
           write_control_files
         end
         
         def write_control_files
-          DpkgTools::Package::Metadata.write_control_files(data)
+          DpkgTools::Package::Metadata.write_control_files(DpkgTools::Package::Rails::Metadata.new(data, config))
         end
       end
     end
