@@ -14,7 +14,7 @@ describe DpkgTools::Package::Rails::Builder, "instances" do
     @config = DpkgTools::Package::Config.new('rails-app', '1.0.8', :base_path => "/a/path/to/rails-app/working/dir")
     @config.stubs(:root_path).returns("/a/path/to")
     @stub_data = stub("stub DpkgTools::Package::Rails::Data", :name => 'rails-app', :version => '1.0.8', :deb_filename => 'deb_filename',
-                 :full_name => 'rails-app-1.0.8', :config_key => ['rails-app', '1.0.8'], :config => @config)
+                 :full_name => 'rails-app-1.0.8', :config => @config)
     
     @builder = DpkgTools::Package::Rails::Builder.new(@stub_data)
   end
@@ -127,7 +127,7 @@ describe DpkgTools::Package::Rails::Builder, "#remove_build_products" do
     @config.stubs(:root_path).returns("a/path/to")
     
     @stub_data = stub("stub DpkgTools::Package::Gem::Data", :name => 'rails-app', :version => '1.0.8', 
-                 :full_name => 'rails-app-1.0.8', :config_key => ['rails-app', '1.0.8'], :config => @config)
+                 :full_name => 'rails-app-1.0.8', :config => @config)
     
     @builder = DpkgTools::Package::Rails::Builder.new(@stub_data)
   end

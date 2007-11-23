@@ -1,6 +1,7 @@
 require File.join(File.dirname(__FILE__), 'gem/data')
 require File.join(File.dirname(__FILE__), 'gem/setup')
 require File.join(File.dirname(__FILE__), 'gem/metadata')
+require File.join(File.dirname(__FILE__), 'gem/control_files')
 require File.join(File.dirname(__FILE__), 'gem/builder')
 require File.join(File.dirname(__FILE__), 'gem/rake')
 
@@ -32,6 +33,10 @@ module DpkgTools
           @config_cache[name_version_pair] ||= DpkgTools::Package::Config.new(name, version, :suffix => 'rubygem')
           yield(@config_cache[name_version_pair]) if block_given?
           @config_cache[name_version_pair]
+        end
+        
+        def rubygems_version
+          "0.9.4"
         end
       end
     end

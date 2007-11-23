@@ -12,9 +12,7 @@ describe DpkgTools::Package::Gem::Data, ".new" do
                                                 :summary => 'A gem', :files => :files)
     stub_format = stub('stub Gem::Format', :spec => stub_spec)
     
-    DpkgTools::Package::Config.expects(:new).with('gem_name', '1.0.8', :suffix => 'rubygem')
-    
-    DpkgTools::Package::Gem::Data.new(stub_format)
+    DpkgTools::Package::Gem::Data.new(stub_format, 'gem_byte_string')
   end
 end
 
@@ -22,11 +20,17 @@ describe DpkgTools::Package::Gem::Data, "instances" do
   before(:each) do
     DpkgTools::Package::Config.root_path = '/a/path/to'
     version = stub('Version', :to_s => '1.0.8')
+    stub_requirement = stub('stub Gem::Requirement', :as_list => [">= 0.0.0"])
+    @mock_dep_list = [stub('stub Gem::Dependency', :name => 'whatagem', :version_requirements => stub_requirement)]
     @spec = stub("stub Gem::Specification", :name => 'gem_name', :version => version, 
-                                            :full_name => 'gem_name-1.0.8', :dependencies => :deps,
+                                            :full_name => 'gem_name-1.0.8', :dependencies => @mock_dep_list,
                                             :summary => 'A gem', :files => :files)
     @format = stub("stub Gem::Format", :spec => @spec, :file_entries => :file_entries)
-    @data = DpkgTools::Package::Gem::Data.new(@format)
+    @data = DpkgTools::Package::Gem::Data.new(@format, 'gem_byte_string')
+  end
+  
+  it "should provide access to its gem_byte_string" do
+    @data.gem_byte_string.should == 'gem_byte_string'
   end
   
   it "should provide access to their Gem::Spec" do
@@ -45,10 +49,6 @@ describe DpkgTools::Package::Gem::Data, "instances" do
     @data.full_name.should == 'gem_name-1.0.8'
   end
   
-  it "should provide access to the name, version pair key needed to get a config instance" do
-    @data.config_key.should == ['gem_name', '1.0.8']
-  end
-  
   it "should provide access to the Gem::Format's file_entries attribute" do
     @data.file_entries.should == :file_entries
   end
@@ -65,24 +65,27 @@ describe DpkgTools::Package::Gem::Data, "instances" do
     @data.debian_arch.should == "i386"
   end
   
-  it "should provide access to the filename the built .deb will have" do
-    @data.deb_filename.should == "gem-name-rubygem_1.0.8-1_i386.deb"
+  it "should be able to generate a sensible list of deps" do
+    @data.send(:base_deps).should == [{:name => "whatagem-rubygem", :requirements => [">= 0.0.0-1"]}]
   end
   
-  it "should provide access to any dependencies" do
-    @data.dependencies.should == :deps
+  it "should provide access to any install-time dependencies" do
+    @data.dependencies.should == [{:name => "rubygems", :requirements => [">= 0.9.4-1"]},
+                                  {:name => "whatagem-rubygem", :requirements => [">= 0.0.0-1"]}]
+  end
+  
+  it "should provide access to any build-time dependencies" do
+    @data.build_dependencies.should == [{:name => "rubygems", :requirements => [">= 0.9.4-1"]},
+                                        {:name => "rake-rubygem", :requirements => [">= 0.7.0-1"]},
+                                        {:name => "dpkg-tools-rubygem", :requirements => [">= #{DpkgTools::VERSION::STRING}-1"]},
+                                        {:name => "whatagem-rubygem", :requirements => [">= 0.0.0-1"]}]
   end
   
   it "should provide access to the summary from the spec" do
     @data.summary.should == @spec.summary
   end
   
-  it "should provide access to its associated config instance" do
-    @data.config.should be_an_instance_of(DpkgTools::Package::Config)
-  end
-  
-  
-  it "should provide access to the path where its package Rakefile should live" do
-    @data.rakefile_path.should == '/a/path/to/gem-name-rubygem-1.0.8/Rakefile'
+  it "should provide access to the information DpkgTools::Package::Config needs to generate the package Rakefile's path" do
+    @data.rakefile_location.should == [:base_path, 'Rakefile']
   end
 end

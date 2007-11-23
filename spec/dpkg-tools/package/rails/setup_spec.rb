@@ -47,19 +47,19 @@ end
 
 describe DpkgTools::Package::Rails::Setup, ".new" do
   before(:each) do
-    @data = stub('stub DpkgTools::Package::Rails::Data', :name => 'name', :version => '1')
+    @data = stub('stub DpkgTools::Package::Rails::Data', :name => 'name', :version => '1', :base_path => 'base_path')
   end
   
   it "should raise an error without any arguments" do
     lambda { DpkgTools::Package::Rails::Setup.new }.should raise_error
   end
   
-  it "should require two arguments" do
-    DpkgTools::Package::Rails::Setup.new(@data, 'base_path')
+  it "should require one argument" do
+    DpkgTools::Package::Rails::Setup.new(@data)
   end
   
   it "should result in @config being set to a DpkgTools::Package::Config instance" do
-    setup = DpkgTools::Package::Rails::Setup.new(@data, 'base_path')
+    setup = DpkgTools::Package::Rails::Setup.new(@data)
     setup.config.should be_an_instance_of(DpkgTools::Package::Config)
   end
 end
@@ -67,27 +67,19 @@ end
 describe DpkgTools::Package::Rails::Setup, "instances" do
   before(:each) do
     @data = stub("stub DpkgTools::Package::Rails::Data", :name => 'rails-app-name', :version => '1.0.8', 
-                 :full_name => 'rails-app-name-1.0.8')
-    @setup = DpkgTools::Package::Rails::Setup.new(@data, 'base_path')
+                 :full_name => 'rails-app-name-1.0.8', :base_path => 'base_path')
+    @setup = DpkgTools::Package::Rails::Setup.new(@data)
+  end
+  
+  it "should provide access to the correct options for making a new DpkgTools::Package::Config" do
+    @setup.config_options.should == {:base_path => 'base_path'}
   end
   
   it "should provide access to its Package::Rails::Data" do
     @setup.data.should == @data
   end
   
-  it "should be able to call DpkgTools::Package::Metadata to write out the debian control files" do
-    DpkgTools::Package::Rails::Metadata.expects(:new).with(@setup.data, @setup.config).returns(:metadata)
-    DpkgTools::Package::Metadata.expects(:write_control_files).with(:metadata)
-    @setup.write_control_files
-  end
-  
-  it "should be able to perform all the steps needed to create the package structure" do
-    @setup.stubs(:config).returns(:config)
-    
-    DpkgTools::Package.expects(:check_package_dir).with(:config)
-    
-    @setup.expects(:write_control_files)
-    
-    @setup.create_structure
+  it "should be able to return the correct list of classes to build control files with" do
+    @setup.control_file_classes.should == DpkgTools::Package::Rails::ControlFiles.classes
   end
 end

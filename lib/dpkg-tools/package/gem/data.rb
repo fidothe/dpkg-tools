@@ -1,14 +1,13 @@
 module DpkgTools
   module Package
     module Gem
-      class Data
-        attr_reader :spec, :config
+      class Data < DpkgTools::Package::Data
+        attr_reader :spec, :config, :gem_byte_string
         
-        def initialize(format)
+        def initialize(format, gem_byte_string)
           @format = format
+          @gem_byte_string = gem_byte_string
           @spec = format.spec
-          
-          @config = DpkgTools::Package::Config.new(name, version, :suffix => "rubygem")
         end
         
         def name
@@ -23,8 +22,22 @@ module DpkgTools
           @spec.full_name
         end
         
-        def config_key
-          [self.name, self.version]
+        def debian_arch
+          "i386"
+        end
+        
+        def build_dependencies
+          [{:name => "rubygems", :requirements => [">= #{Gem.rubygems_version}-1"]}, 
+           {:name => "rake-rubygem", :requirements => [">= 0.7.0-1"]},
+           {:name => "dpkg-tools-rubygem", :requirements => [">= #{DpkgTools::VERSION::STRING}-1"]}] + base_deps
+        end
+        
+        def dependencies
+          [{:name => "rubygems", :requirements => [">= #{Gem.rubygems_version}-1"]}] + base_deps
+        end
+        
+        def summary
+          @spec.summary
         end
         
         def files
@@ -35,28 +48,20 @@ module DpkgTools
           @format.file_entries
         end
         
-        def debian_revision
-          "1"
-        end
+        private
         
-        def debian_arch
-          "i386"
-        end
-        
-        def deb_filename
-          @config.deb_filename(debian_arch)
-        end
-        
-        def dependencies
-          @spec.dependencies
-        end
-        
-        def summary
-          @spec.summary
-        end
-        
-        def rakefile_path
-          File.join(@config.base_path, 'Rakefile')
+        def base_deps
+          return @base_deps unless @base_deps.nil?
+          @base_deps = []
+          @spec.dependencies.each do |dependency|
+            dep_conf = DpkgTools::Package::Config.new(dependency.name, nil, :suffix => 'rubygem')
+            entry = {:name => dep_conf.package_name, :requirements => []}
+            dependency.version_requirements.as_list.each do |version|
+              entry[:requirements] << "#{version}-1"
+            end
+            @base_deps << entry
+          end
+          @base_deps
         end
       end
     end

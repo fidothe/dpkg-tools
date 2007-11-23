@@ -24,7 +24,7 @@ describe DpkgTools::Package::Gem::Builder, "instances" do
     @config = DpkgTools::Package::Config.new('stub_gem', '1.0.8', :suffix => 'rubygem')
     @config.stubs(:root_path).returns("a/path/to")
     @stub_data = stub("stub DpkgTools::Package::Gem::Data", :name => 'stub_gem', :version => '1.0.8', 
-                 :full_name => 'gem_name-1.0.8', :config_key => ['stub_gem', '1.0.8'], :config => @config)
+                 :full_name => 'gem_name-1.0.8', :config => @config)
     
     @builder = DpkgTools::Package::Gem::Builder.new(@stub_data, 'gem byte string')
   end
@@ -135,7 +135,7 @@ describe DpkgTools::Package::Gem::Builder, "#remove_build_products" do
     @config.stubs(:root_path).returns("a/path/to")
     
     @stub_data = stub("stub DpkgTools::Package::Gem::Data", :name => 'stub_gem', :version => '1.0.8', 
-                 :full_name => 'stub_gem-1.0.8', :config_key => ['stub_gem', '1.0.8'], :config => @config)
+                 :full_name => 'stub_gem-1.0.8', :config => @config)
     
     @builder = DpkgTools::Package::Gem::Builder.new(@stub_data, 'gem byte string')
   end

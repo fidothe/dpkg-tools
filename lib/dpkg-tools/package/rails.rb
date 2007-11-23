@@ -2,6 +2,7 @@ require File.join(File.dirname(__FILE__), 'rails/data')
 require File.join(File.dirname(__FILE__), 'rails/setup')
 require File.join(File.dirname(__FILE__), 'rails/builder')
 require File.join(File.dirname(__FILE__), 'rails/metadata')
+require File.join(File.dirname(__FILE__), 'rails/control_files')
 require File.join(File.dirname(__FILE__), 'rails/rake')
 
 module DpkgTools

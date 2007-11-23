@@ -74,14 +74,6 @@ module DpkgTools
           "all"
         end
         
-        def deb_filename
-          @config.deb_filename(debian_arch)
-        end
-        
-        def rakefile_path
-          File.join(@config.base_path, 'lib/tasks/dpkg-tools.rake')
-        end
-        
         def dependencies
           @dependencies
         end
@@ -96,6 +88,14 @@ module DpkgTools
         
         def full_name
           "#{name}-#{version}"
+        end
+        
+        def deb_filename
+          @config.deb_filename(debian_arch)
+        end
+        
+        def rakefile_path
+          File.join(@config.base_path, 'lib/tasks/dpkg-tools.rake')
         end
       end
     end

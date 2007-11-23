@@ -9,7 +9,7 @@ require 'rubygems/remote_installer'
 module DpkgTools
   module Package
     module Gem
-      class Setup
+      class Setup < DpkgTools::Package::Setup
         class << self
           def write_gem_file(config, gem_byte_string)
             File.open(config.gem_path, 'wb') {|f| f.write(gem_byte_string)}
@@ -64,7 +64,7 @@ module DpkgTools
           
           def from_spec_and_source(spec, source)
             gem_byte_string = gem_file_from_uri(gem_uri_from_spec_n_source(spec, source))
-            self.new(Gem::Data.new(format_from_string(gem_byte_string)), gem_byte_string)
+            self.new(Gem::Data.new(format_from_string(gem_byte_string), gem_byte_string))
           end
           
           def from_spec_and_source_via_cache(spec, source)
@@ -83,7 +83,7 @@ module DpkgTools
           
           def from_path(gem_path)
             format, gem_byte_string = format_and_file_from_path(gem_path)
-            self.new(Gem::Data.new(format), gem_byte_string)
+            self.new(Gem::Data.new(format, gem_byte_string))
           end
           
           def write_orig_tarball(config, gem_byte_string)
@@ -109,15 +109,14 @@ module DpkgTools
           end
         end
         
-        attr_reader :data, :gem_byte_string
+        attr_reader :data, :config
         
-        def initialize(data, gem_byte_string)
-          @data = data
-          @gem_byte_string = gem_byte_string
+        def control_file_classes
+          DpkgTools::Package::Gem::ControlFiles.classes
         end
         
-        def config_key
-          @data.config_key
+        def config_options
+          {:suffix => 'rubygem'}
         end
         
         def fetch_gem_file
@@ -132,22 +131,16 @@ module DpkgTools
         end
         
         def write_orig_tarball
-          self.class.write_orig_tarball(data.config, gem_byte_string)
+          self.class.write_orig_tarball(config, data.gem_byte_string)
         end
         
         def write_gem_file
-          self.class.write_gem_file(data.config, gem_byte_string)
+          self.class.write_gem_file(config, data.gem_byte_string)
         end
         
-        def write_control_files
-          DpkgTools::Package::Metadata.write_control_files(DpkgTools::Package::Gem::Metadata.new(data, data.config))
-        end
-        
-        def create_structure
-          DpkgTools::Package.check_package_dir(data.config)
+        def prepare_structure
           write_orig_tarball
           write_gem_file
-          write_control_files
         end
         
         def fetch_dependency(dependency)

@@ -3,7 +3,7 @@ require 'erb'
 module DpkgTools
   module Package
     module Rails
-      class Setup
+      class Setup < DpkgTools::Package::Setup
         class << self
           def from_path(base_path)
             self.new(DpkgTools::Package::Rails::Data.new(base_path), base_path)
@@ -34,22 +34,15 @@ module DpkgTools
         
         attr_reader :data, :config
         
-        def initialize(data, base_path)
-          @data = data
-          @config = DpkgTools::Package::Config.new(@data.name, @data.version, :base_path => base_path)
+        def control_file_classes
+          DpkgTools::Package::Rails::ControlFiles.classes
         end
         
-        def config_key
-          @data.config_key
+        def config_options
+          {:base_path => @data.base_path}
         end
         
-        def create_structure
-          DpkgTools::Package.check_package_dir(config)
-          write_control_files
-        end
-        
-        def write_control_files
-          DpkgTools::Package::Metadata.write_control_files(DpkgTools::Package::Rails::Metadata.new(data, config))
+        def prepare_structure
         end
       end
     end
