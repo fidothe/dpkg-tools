@@ -49,7 +49,7 @@ module DpkgTools
         end
         
         def write
-          file_contents = generate()
+          file_contents = formatter.build
           write_method = executable? ? :write_executable : :write
           self.class.send(write_method, file_path, file_contents)
         end

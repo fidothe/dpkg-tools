@@ -15,12 +15,12 @@ require 'fileutils'
 module DpkgTools
   module Package
     module Gem
-      class Builder
+      class Builder < DpkgTools::Package::Builder
         class << self
           def from_file_path(gem_file_path)
             format, gem_byte_string = format_and_file_from_file_path(gem_file_path)
-            data = Data.new(format)
-            self.new(data, gem_byte_string)
+            data = Data.new(format, gem_byte_string)
+            self.new(data)
           end
           
           def format_and_file_from_file_path(gem_file_path)
@@ -32,28 +32,17 @@ module DpkgTools
           end
         end
         
-        attr_reader :data, :gem_byte_string
-        
-        def initialize(data, gem_byte_string)
-          @data = data
-          @gem_byte_string = gem_byte_string
+        def config_options
+          {:suffix => 'rubygem'}
         end
         
-        def config
-          data.config
-        end
-        
-        def create_buildroot
-          Dir.mkdir(config.buildroot) unless File.directory?(config.buildroot)
+        def gem_byte_string
+          data.gem_byte_string
         end
         
         def create_install_dirs
           FileUtils.mkdir_p(config.gem_install_path)
           FileUtils.mkdir_p(config.bin_install_path)
-        end
-        
-        def create_DEBIAN_dir
-          Dir.mkdir(config.buildroot_DEBIAN_path) unless File.directory?(config.buildroot_DEBIAN_path)
         end
         
         def override_gem_bindir
@@ -73,37 +62,9 @@ module DpkgTools
           doc_manager.generate_rdoc
         end
         
-        # create DEBIAN/* package metadata by running dpkg-gencontrol
-        # Note: this assumes that command is run from package base dir
-        def create_control_files
-          sh "dpkg-gencontrol"
-        end
-        
-        def deb_filename
-          data.deb_filename
-        end
-        
-        def built_deb_path
-          "#{config.root_path}/#{deb_filename}"
-        end
-        
-        # create the .deb binary package by running dpkg-deb --build with the appropriate options
-        def create_deb
-          sh "dpkg-deb --build \"#{config.buildroot}\" \"#{built_deb_path}\""
-        end
-        
-        def build_package
-          create_buildroot
-          create_install_dirs
-          create_DEBIAN_dir
+        def install_package_files
           installed_gem_spec = install_gem
           install_docs(installed_gem_spec)
-          create_control_files
-          create_deb
-        end
-        
-        def remove_build_products
-          FileUtils.remove_dir(config.buildroot) if File.exists?(config.buildroot)
         end
       end
     end

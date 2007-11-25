@@ -8,7 +8,7 @@ module DpkgTools
           end
           
           def changelog
-            "#{config.package_name} (#{config.deb_version}) cp-gutsy; urgency=low\n"\
+            "#{config.package_name} (#{config.deb_version(data.debian_revision)}) cp-gutsy; urgency=low\n"\
             "  * Packaged up #{data.full_name}\n"\
             " -- Matt Patterson <matt@reprocessed.org>  #{self.change_time}\n"
           end

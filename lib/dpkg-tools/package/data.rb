@@ -1,6 +1,17 @@
 module DpkgTools
   module Package
     class Data
+      class << self
+        def resources_dirname
+          self.name.split('::').last.downcase
+        end
+        
+        def resources_path
+          dirs_to_climb_up = Array.new(File.expand_path(File.dirname(__FILE__)).split('/').reverse.index('lib') + 1).collect { '..' }
+          File.expand_path(File.join(File.dirname(__FILE__), dirs_to_climb_up, 'resources', self.resources_dirname))
+        end
+      end
+      
       def name
         "name"
       end
@@ -40,6 +51,12 @@ module DpkgTools
       def rakefile_location
         [:base_path, 'Rakefile']
       end
+      
+      def resources_path
+        self.class.resources_path
+      end
+      
+      public :binding
     end
   end
 end

@@ -83,7 +83,7 @@ describe DpkgTools::Package::Config, "instances" do
   end
   
   it "should provide access to the filename the built .deb will have" do
-    @config.deb_filename("i386").should == "gemname-rubygem_1.0.8-1_i386.deb"
+    @config.deb_filename("1", "i386").should == "gemname-rubygem_1.0.8-1_i386.deb"
   end
   
   it "should provide access to the version" do
@@ -91,7 +91,7 @@ describe DpkgTools::Package::Config, "instances" do
   end
   
   it "should provide access to the debianized version (with package release suffix)" do
-    @config.deb_version.should == "1.0.8-1"
+    @config.deb_version("1").should == "1.0.8-1"
   end
 end
 
@@ -138,5 +138,9 @@ describe DpkgTools::Package::Config, "instances with base_path specified directl
   
   it "should be able to return the name of the dpkg package dir" do
     @config.package_dir_name.should == 'package-name'
+  end
+  
+  it "should be able to return the correct root_path" do
+    @config.root_path.should == '/a/path/to'
   end
 end

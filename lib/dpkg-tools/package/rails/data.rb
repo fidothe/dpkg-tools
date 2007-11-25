@@ -3,14 +3,14 @@ module DpkgTools
     module Rails
       class DebYAMLParseError < StandardError; end
       
-      class Data
+      class Data < DpkgTools::Package::Data
         BASE_GEM_DEPS = [{:name => 'rails-rubygem', :requirements => ['>= 1.2.5-1']},
                          {:name => 'rake-rubygem', :requirements => ['>= 0.7.3-1']}]
         BASE_PACKAGE_DEPS = [{:name => 'mysql-client'}, {:name => 'mysql-server'}]
         
         class << self
-          def load_package_data(base_path)
-            YAML.load_file(File.join(base_path, 'config/deb.yml')) if File.exist?(File.join(base_path, 'config/deb.yml'))
+          def load_package_data(base_path, filename)
+            YAML.load_file(File.join(base_path, 'config', filename)) if File.exist?(File.join(base_path, 'config', filename))
           end
           
           def process_dependencies(data)
@@ -44,14 +44,19 @@ module DpkgTools
             end
             processed_dependencies
           end
+          
+          def resources_dirname
+            'rails'
+          end
         end
         
-        attr_reader :spec, :config
+        attr_reader :spec, :config, :base_path
         
         def initialize(base_path)
-          @data = self.class.load_package_data(base_path)
+          @data = self.class.load_package_data(base_path, 'deb.yml')
+          @mongrel_cluster_data = self.class.load_package_data(base_path, 'mongrel_cluster.yml')
           @dependencies = self.class.process_dependencies(@data)
-          @config = DpkgTools::Package::Config.new(name, version, :base_path => base_path)
+          @base_path = base_path
         end
         
         def name
@@ -90,12 +95,20 @@ module DpkgTools
           "#{name}-#{version}"
         end
         
-        def deb_filename
-          @config.deb_filename(debian_arch)
+        def rakefile_location
+          [:base_path, 'lib/tasks/dpkg-tools.rake']
         end
         
-        def rakefile_path
-          File.join(@config.base_path, 'lib/tasks/dpkg-tools.rake')
+        def number_of_mongrels
+          @mongrel_cluster_data['servers']
+        end
+        
+        def mongrel_cluster_start_port
+          @mongrel_cluster_data['port']
+        end
+        
+        def mongrel_ports
+          Array.new(number_of_mongrels) {|i| (mongrel_cluster_start_port.to_i + i).to_s}
         end
       end
     end

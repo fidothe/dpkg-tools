@@ -49,7 +49,8 @@ end
 describe DpkgTools::Package::ControlFiles::Base, "instances" do
   before(:each) do
     @config = DpkgTools::Package::Config.new('name', '1.0', :base_path => '/a/path/to/package')
-    DpkgTools::Package::ControlFiles::BaseFormatter.expects(:new).with(anything).returns(:formatter)
+    @formatter = mock('DpkgTools::Package::ControlFiles::BaseFormatter')
+    DpkgTools::Package::ControlFiles::BaseFormatter.expects(:new).with(anything).returns(@formatter)
     @control_file = DpkgTools::Package::ControlFiles::Base.new(:data, @config)
   end
   
@@ -59,7 +60,7 @@ describe DpkgTools::Package::ControlFiles::Base, "instances" do
   end
   
   it "should be able to return its formatter class instance" do
-    @control_file.formatter.should == :formatter
+    @control_file.formatter.should == @formatter
   end
   
   it "should be able to figure out where it should be written" do
@@ -71,7 +72,7 @@ describe DpkgTools::Package::ControlFiles::Base, "instances" do
   end
   
   it "should be able to write itself out" do
-    @control_file.expects(:generate).returns('file contents')
+    @formatter.expects(:build).returns('file contents')
     DpkgTools::Package::ControlFiles::Base.expects(:write).with('/a/path/to/package/debian/base', 'file contents')
     
     @control_file.write

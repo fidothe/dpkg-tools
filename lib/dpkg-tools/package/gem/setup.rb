@@ -138,7 +138,7 @@ module DpkgTools
           self.class.write_gem_file(config, data.gem_byte_string)
         end
         
-        def prepare_structure
+        def prepare_package
           write_orig_tarball
           write_gem_file
         end
@@ -150,7 +150,7 @@ module DpkgTools
         end
         
         def fetch_dependencies
-          deps = data.dependencies.collect do |dependency|
+          deps = data.spec.dependencies.collect do |dependency|
             fetch_dependency(dependency)
           end
           @fetched_dependencies = true

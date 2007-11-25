@@ -1,5 +1,15 @@
 require File.dirname(__FILE__) + '/../../spec_helper'
 
+describe DpkgTools::Package::Setup, "bootstrapping" do
+  it "should respond to needs_bootstrapping?" do
+    DpkgTools::Package::Setup.needs_bootstrapping?('base_path').should be_false
+  end
+  
+  it "should respond to bootstrap" do
+    DpkgTools::Package::Setup.should respond_to(:bootstrap)
+  end
+end
+
 describe DpkgTools::Package::Setup, "#create_structure" do
   before(:each) do
     @data = stub("stub DpkgTools::Package::Data", :name => 'hello', :version => '1')
@@ -31,5 +41,9 @@ describe DpkgTools::Package::Setup, "#create_structure" do
     @setup.expects(:control_file_classes).returns([mock_control_file_class])
     
     @setup.write_control_files
+  end
+  
+  it "should provide a no-op version of prepare_package" do
+    @setup.should respond_to(:prepare_package)
   end
 end

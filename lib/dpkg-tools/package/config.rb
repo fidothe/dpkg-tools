@@ -40,6 +40,7 @@ module DpkgTools
       end
       
       def root_path
+        return File.dirname(@options[:base_path]) if @options.has_key?(:base_path)
         self.class.root_path
       end
       
@@ -79,12 +80,12 @@ module DpkgTools
         File.join(buildroot, 'DEBIAN')
       end
       
-      def deb_filename(deb_arch)
-        "#{package_name}_#{deb_version}_#{deb_arch}.deb"
+      def deb_filename(deb_revision, deb_arch)
+        "#{package_name}_#{deb_version(deb_revision)}_#{deb_arch}.deb"
       end
       
-      def deb_version
-        "#{version}-1"
+      def deb_version(deb_revision)
+        "#{version}-#{deb_revision}"
       end
     end
   end

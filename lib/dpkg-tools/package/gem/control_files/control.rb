@@ -25,7 +25,7 @@ module DpkgTools
           
           # Build-Depends: build-time package deps
           def build_depends
-            [{:name => "rubygems", :requirements => [">= 0.9.4-1"]}, {:name => "rake-rubygem", :requirements => [">= 0.7.0-1"]}] + base_deps(data.dependencies)
+            data.build_dependencies
           end
           
           # Standards-Version: the version we currently implement
@@ -50,27 +50,12 @@ module DpkgTools
           
           # Depends: install- and run-time package deps
           def depends
-            [{:name => "rubygems", :requirements => [">= 0.9.4-1"]}] + base_deps(data.dependencies)
+            data.dependencies
           end
           
           # Description: We only return the summary for now
           def description
             data.summary
-          end
-          
-          private
-          
-          def base_deps(dependencies)
-            base_deps = []
-            dependencies.each do |dependency|
-              dep_conf = DpkgTools::Package::Config.new(dependency.name, nil, :suffix => 'rubygem')
-              entry = {:name => dep_conf.package_name, :requirements => []}
-              dependency.version_requirements.as_list.each do |version|
-                entry[:requirements] << "#{version}-1"
-              end
-              base_deps << entry
-            end
-            base_deps
           end
         end
       end

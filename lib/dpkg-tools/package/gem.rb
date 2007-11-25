@@ -1,6 +1,5 @@
 require File.join(File.dirname(__FILE__), 'gem/data')
 require File.join(File.dirname(__FILE__), 'gem/setup')
-require File.join(File.dirname(__FILE__), 'gem/metadata')
 require File.join(File.dirname(__FILE__), 'gem/control_files')
 require File.join(File.dirname(__FILE__), 'gem/builder')
 require File.join(File.dirname(__FILE__), 'gem/rake')

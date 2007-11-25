@@ -240,7 +240,7 @@ describe DpkgTools::Package::Gem::Setup, "instances" do
     @setup.expects(:write_orig_tarball)
     @setup.expects(:write_gem_file)
     
-    @setup.prepare_structure
+    @setup.prepare_package
   end
   
   it "should be able to create a setup instance for a dependency which has already had its dependencies fetched" do
@@ -269,7 +269,8 @@ describe DpkgTools::Package::Gem::Setup, "instances" do
   end
   
   it "should be able to create setup instances for any dependencies" do
-    @data.expects(:dependencies).returns([:dep1, :dep2])
+    stub_spec = stub('Gem::Specification', :dependencies => [:dep1, :dep2])
+    @data.expects(:spec).returns(stub_spec)
     @setup.expects(:fetch_dependency).with(:dep1).returns(:dep1_setup)
     @setup.expects(:fetch_dependency).with(:dep2).returns(:dep2_setup)
     @setup.fetch_dependencies.should == [:dep1_setup, :dep2_setup]
@@ -281,7 +282,8 @@ describe DpkgTools::Package::Gem::Setup, "instances" do
   end
   
   it "should be able to record the fact that it has fetched its dependencies" do
-    @data.expects(:dependencies).returns([])
+    stub_spec = stub('Gem::Specification', :dependencies => [])
+    @data.expects(:spec).returns(stub_spec)
     @setup.fetch_dependencies
     @setup.fetched_dependencies?.should be_true
   end
