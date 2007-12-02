@@ -41,8 +41,8 @@ module DpkgTools
         end
         
         def create_install_dirs
-          FileUtils.mkdir_p(config.gem_install_path)
-          FileUtils.mkdir_p(config.bin_install_path)
+          create_dir_if_needed(config.gem_install_path)
+          create_dir_if_needed(config.bin_install_path)
         end
         
         def override_gem_bindir
@@ -62,9 +62,13 @@ module DpkgTools
           doc_manager.generate_rdoc
         end
         
-        def install_package_files
+        def build_package_files
           installed_gem_spec = install_gem
           install_docs(installed_gem_spec)
+        end
+        
+        def install_package_files
+          sh "chown -R root:root \"#{config.buildroot}\""
         end
       end
     end

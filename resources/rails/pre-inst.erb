@@ -1,24 +1,24 @@
 #!/bin/bash -e
 
-DATADIR="/var/lib/app-name-app"
+DATADIR="<%= app_install_path %>"
 
 # Create a group for the app if it isn't already there
-if ! getent group "app-name" >/dev/null; then
-	# Adding system group for the app: app-name.
-	addgroup --system "app-name" >/dev/null
+if ! getent group "<%= init_name %>" >/dev/null; then
+	# Adding system group for the app: <%= init_name %>.
+	addgroup --system "<%= init_name %>" >/dev/null
 fi
 
 # Create a user for the app if it isn't already there
-if ! getent passwd app-name >/dev/null; then
-	# Adding system user: mysql.
+if ! getent passwd <%= init_name %> >/dev/null; then
+	# Adding system user: <%= init_name %>.
 	adduser \
 	  --system \
 	  --disabled-login \
-	  --ingroup app-name \
+	  --ingroup <%= init_name %> \
 	  --home $DATADIR \
-	  --gecos "app-name Rails app" \
+	  --gecos "<%= init_name %> Rails app" \
 	  --shell /bin/bash \
-	  app-name  >/dev/null
+	  <%= init_name %>  >/dev/null
 fi
 
 # Create the app's home dir, if it isn't there already...
@@ -31,6 +31,6 @@ fi
 # not chgrp'able (#318435). [nicked from mysql-server 5's pre-inst]
 set +e
 chown app-name:app-name $DATADIR
-find $DATADIR -follow -not -group "app-name" -print0 2>/dev/null \
-  | xargs -0 --no-run-if-empty chgrp "app-name"
+find $DATADIR -follow -not -group "<%= init_name %>" -print0 2>/dev/null \
+  | xargs -0 --no-run-if-empty chgrp "<%= init_name %>"
 set -e

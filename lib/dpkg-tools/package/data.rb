@@ -3,7 +3,7 @@ module DpkgTools
     class Data
       class << self
         def resources_dirname
-          self.name.split('::').last.downcase
+          'data'
         end
         
         def resources_path
@@ -29,7 +29,11 @@ module DpkgTools
       end
       
       def debian_arch
-        "i386"
+        "all"
+      end
+      
+      def architecture_independent?
+        debian_arch == 'all'
       end
       
       def dependencies

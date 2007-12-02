@@ -1,0 +1,15 @@
+/var/log/apache2/<%= server_name %>/*.log {
+        weekly
+        missingok
+        rotate 52
+        compress
+        delaycompress
+        notifempty
+        create 640 root adm
+        sharedscripts
+        postrotate
+                if [ -f /var/run/apache2.pid ]; then
+                        /etc/init.d/apache2 restart > /dev/null
+                fi
+        endscript
+}

@@ -2,6 +2,17 @@ require File.dirname(__FILE__) + '/../../../spec_helper'
 
 describe DpkgTools::Package::Rails::Setup, ".from_path" do
   it "should create a DpkgTools::Package::Rails::Data instance, and feed it to .new" do
+    DpkgTools::Package::Rails::Setup.expects(:needs_bootstrapping?).with('base_path').returns(false)
+    DpkgTools::Package::Rails::Data.expects(:new).with('base_path').returns(:data)
+    DpkgTools::Package::Rails::Setup.expects(:new).with(:data, 'base_path').returns(:instance)
+    
+    DpkgTools::Package::Rails::Setup.from_path('base_path').should == :instance
+  end
+  
+  it "should be able to bootstrap the rails app if needed" do
+    DpkgTools::Package::Rails::Setup.expects(:needs_bootstrapping?).with('base_path').returns(true)
+    DpkgTools::Package::Rails::Setup.expects(:bootstrap).with('base_path')
+    
     DpkgTools::Package::Rails::Data.expects(:new).with('base_path').returns(:data)
     DpkgTools::Package::Rails::Setup.expects(:new).with(:data, 'base_path').returns(:instance)
     
@@ -38,6 +49,13 @@ describe DpkgTools::Package::Rails::Setup, "bootstrapping" do
     
     DpkgTools::Package::Rails::Setup.bootstrap_file('base_path', 'deb.yml')
   end
+  
+  it ".bootstrap should copy across the files correctly" do
+    DpkgTools::Package::Rails::Setup.expects(:bootstrap_file).with('base_path', 'deb.yml')
+    DpkgTools::Package::Rails::Setup.expects(:bootstrap_file).with('base_path', 'mongrel_cluster.yml')
+    
+    DpkgTools::Package::Rails::Setup.bootstrap('base_path')
+  end
 end
 
 describe DpkgTools::Package::Rails::Setup, ".needs_bootstrapping?" do
@@ -63,42 +81,6 @@ describe DpkgTools::Package::Rails::Setup, ".needs_bootstrapping?" do
   end
 end
 
-describe DpkgTools::Package::Rails::Setup, "creating config files" do
-  it "should be able to return the path to the resources dir, given base_path" do
-    File.expects(:dirname).returns('/a/path/to/dpkg-tools/lib/dpkg-tools/package/rails')
-    DpkgTools::Package::Rails::Setup.resources_path.should == '/a/path/to/dpkg-tools/resources'
-  end
-  
-  it "should be able to copy across a sample apache.conf.erb file" do
-    DpkgTools::Package::Rails::Setup.expects(:resources_path).returns('/a/path/to/resources')
-    FileUtils.expects(:cp).with('/a/path/to/resources/apache.conf.erb', 'base_path/config/apache.conf.erb')
-    
-    DpkgTools::Package::Rails::Setup.create_apache_conf_template('base_path')
-  end
-  
-  it "should be able to copy across a sample deb.yml file" do
-    DpkgTools::Package::Rails::Setup.expects(:resources_path).returns('/a/path/to/resources')
-    FileUtils.expects(:cp).with('/a/path/to/resources/deb.yml', 'base_path/config/deb.yml')
-    
-    DpkgTools::Package::Rails::Setup.create_deb_yaml('base_path')
-  end
-  
-  it "should be able to call mongrel_cluster's config creator to create a config.yml for mongrel_cluster" do
-    DpkgTools::Package::Rails::Setup.expects(:resources_path).returns('/a/path/to/resources')
-    FileUtils.expects(:cp).with('/a/path/to/resources/mongrel_cluster.yml', 'base_path/config/mongrel_cluster.yml')
-    
-    DpkgTools::Package::Rails::Setup.create_mongrel_cluster_conf_yaml('base_path')
-  end
-  
-  it "should be able to create the base config files" do
-    DpkgTools::Package::Rails::Setup.expects(:create_apache_conf_template).with('base_path')
-    DpkgTools::Package::Rails::Setup.expects(:create_deb_yaml).with('base_path')
-    DpkgTools::Package::Rails::Setup.expects(:create_mongrel_cluster_conf_yaml).with('base_path')
-    
-    DpkgTools::Package::Rails::Setup.create_config_files('base_path')
-  end
-end
-
 describe DpkgTools::Package::Rails::Setup, ".new" do
   before(:each) do
     @data = stub('stub DpkgTools::Package::Rails::Data', :name => 'name', :version => '1', :base_path => 'base_path')
@@ -120,10 +102,12 @@ end
 
 describe DpkgTools::Package::Rails::Setup, ".prepare_package" do
   it "should copy the apache conf template across" do
-    data = stub('stub DpkgTools::Package::Rails::Data', :name => 'name', :version => '1', :base_path => 'base_path')
-    config = DpkgTools::Package::Config.new('name', '1', :base_path => 'base_path')
     DpkgTools::Package::Rails::Data.stubs(:resources_path).returns('/a/path/to/resources')
-    FileUtils.expects(:cp).with('/a/path/to/resources/apache.conf.erb', 'base_path/config/apache.conf.erb')
+    data = stub('stub DpkgTools::Package::Rails::Data', :name => 'name', :version => '1', :base_path => 'base_path', 
+                                                        :resources_path => '/a/path/to/resources')
+    config = DpkgTools::Package::Config.new('name', '1', :base_path => 'base_path')
+    DpkgTools::Package::Rails::Setup.expects(:bootstrap_file).with('base_path', 'apache.conf.erb')
+    DpkgTools::Package::Rails::Setup.expects(:bootstrap_file).with('base_path', 'logrotate.conf.erb')
     
     DpkgTools::Package::Rails::Setup.prepare_package(data, config)
   end
@@ -133,7 +117,6 @@ describe DpkgTools::Package::Rails::Setup, "instances" do
   before(:each) do
     @data = stub("stub DpkgTools::Package::Rails::Data", :name => 'rails-app-name', :version => '1.0.8', 
                  :full_name => 'rails-app-name-1.0.8', :base_path => 'base_path')
-    DpkgTools::Package::Rails::Setup.stubs(:prepare_package)
     @setup = DpkgTools::Package::Rails::Setup.new(@data)
   end
   
@@ -147,5 +130,11 @@ describe DpkgTools::Package::Rails::Setup, "instances" do
   
   it "should be able to return the correct list of classes to build control files with" do
     @setup.control_file_classes.should == DpkgTools::Package::Rails::ControlFiles.classes
+  end
+  
+  
+  it "should be invoked properly by #prepare_package" do
+    DpkgTools::Package::Rails::Setup.expects(:prepare_package).with(@setup.data, @setup.config)
+    @setup.prepare_package
   end
 end

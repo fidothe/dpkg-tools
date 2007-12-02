@@ -24,8 +24,8 @@ describe DpkgTools::Package::Gem::Builder, "instances" do
   before(:each) do
     DpkgTools::Package::Config.stubs(:root_path).returns("a/path/to")
     @stub_data = stub("stub DpkgTools::Package::Gem::Data", :name => 'stub_gem', :version => '1.0.8', 
-                 :full_name => 'gem_name-1.0.8', :config => @config, :debian_revision => '1',
-                 :debian_architecture => 'all', :gem_byte_string => 'gem byte string')
+                 :full_name => 'gem_name-1.0.8', :debian_revision => '1',
+                 :debian_arch => 'all', :gem_byte_string => 'gem byte string')
     
     @builder = DpkgTools::Package::Gem::Builder.new(@stub_data)
   end
@@ -39,8 +39,8 @@ describe DpkgTools::Package::Gem::Builder, "instances" do
   end
   
   it "should be able to create the needed install dirs" do
-    FileUtils.expects(:mkdir_p).with('a/path/to/stub-gem-rubygem-1.0.8/debian/tmp/usr/lib/ruby/gems/1.8')
-    FileUtils.expects(:mkdir_p).with('a/path/to/stub-gem-rubygem-1.0.8/debian/tmp/usr/bin')
+    @builder.expects(:create_dir_if_needed).with('a/path/to/stub-gem-rubygem-1.0.8/debian/tmp/usr/lib/ruby/gems/1.8')
+    @builder.expects(:create_dir_if_needed).with('a/path/to/stub-gem-rubygem-1.0.8/debian/tmp/usr/bin')
     
     @builder.create_install_dirs
   end
@@ -73,6 +73,12 @@ describe DpkgTools::Package::Gem::Builder, "instances" do
   it "should be able to perform the steps needed to install all the package's files" do
     @builder.expects(:install_gem).returns(:installed_gem_spec)
     @builder.expects(:install_docs).with(:installed_gem_spec)
+    
+    @builder.build_package_files
+  end
+  
+  it "should be able to perform the steps needed to finish the install all the package's files" do
+    @builder.expects(:sh).with('chown -R root:root "a/path/to/stub-gem-rubygem-1.0.8/debian/tmp"')
     
     @builder.install_package_files
   end

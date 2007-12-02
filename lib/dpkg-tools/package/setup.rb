@@ -36,6 +36,13 @@ module DpkgTools
         end
       end
       
+      def copy_maintainer_script_templates
+        ['post-inst.erb', 'post-rm.erb', 'pre-inst.erb', 'pre-rm.erb'].each do |filename|
+          resource = File.join(@data.resources_path, filename)
+          FileUtils.cp(resource, File.join(@config.debian_path, filename)) if File.file?(resource)
+        end
+      end
+      
       def prepare_package
       end
       
@@ -44,6 +51,7 @@ module DpkgTools
         
         prepare_package
         write_control_files
+        copy_maintainer_script_templates
       end
     end
   end

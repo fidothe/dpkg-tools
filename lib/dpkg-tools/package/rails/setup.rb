@@ -22,7 +22,7 @@ module DpkgTools
           
           def bootstrap(base_path)
             bootstrap_files.each do |filename|
-              bootstrap_file(filename, base_path)
+              bootstrap_file(base_path, filename)
             end
           end
           
@@ -33,34 +33,14 @@ module DpkgTools
           end
           
           def from_path(base_path)
+            self.bootstrap(base_path) if self.needs_bootstrapping?(base_path)
             self.new(DpkgTools::Package::Rails::Data.new(base_path), base_path)
           end
           
-          def resources_path
-            File.expand_path(File.join(File.dirname(__FILE__), '../../../../resources'))
-          end
-          
-          def create_deb_yaml(base_path)
-            FileUtils.cp(File.join(resources_path, 'deb.yml'), File.join(base_path, 'config/deb.yml'))
-          end
-          
-          def create_apache_conf_template(base_path)
-            FileUtils.cp(File.join(resources_path, 'apache.conf.erb'), File.join(base_path, 'config/apache.conf.erb'))
-          end
-          
-          def create_mongrel_cluster_conf_yaml(base_path)
-            FileUtils.cp(File.join(resources_path, 'mongrel_cluster.yml'), File.join(base_path, 'config/mongrel_cluster.yml'))
-          end
-          
           def prepare_package(data, config)
-            FileUtils.cp(File.join(DpkgTools::Package::Rails::Data.resources_path, 'apache.conf.erb'), 
-              File.join(config.base_path, 'config/apache.conf.erb'))
-          end
-          
-          def create_config_files(base_path)
-            create_mongrel_cluster_conf_yaml(base_path)
-            create_apache_conf_template(base_path)
-            create_deb_yaml(base_path)
+            ['apache.conf.erb', 'logrotate.conf.erb'].each do |filename|
+              bootstrap_file(config.base_path, filename)
+            end
           end
         end
         
@@ -72,6 +52,10 @@ module DpkgTools
         
         def config_options
           {:base_path => @data.base_path}
+        end
+        
+        def prepare_package
+          self.class.prepare_package(data, config)
         end
       end
     end

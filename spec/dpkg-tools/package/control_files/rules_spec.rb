@@ -6,7 +6,7 @@ describe DpkgTools::Package::ControlFiles::Rules, "generating the debian/control
   end
   
   it "should be an executable file" do
-    DpkgTools::Package::ControlFiles::Rules.executable?.should be_true
+    DpkgTools::Package::ControlFiles::Rules.new(:data, :config).executable?.should be_true
   end
   
   it "should return the correct formatter class" do

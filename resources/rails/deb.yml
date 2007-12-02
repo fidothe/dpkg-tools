@@ -1,6 +1,11 @@
 name: "rails-app"
 version: "1.0"
 license: "(c) Matt Patterson, 2007"
+server_name: "reprocessed.org"
+server_aliases: 
+  - "www.reprocessed.org"
+init_name: "reprocessed"
+summary: "App description (mandatory)"
 # To add dependencies, follow this pattern:
 # By default, most of the things you'll need are added for you
 # without you having to add them here:

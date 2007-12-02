@@ -4,44 +4,34 @@ require 'rake/tasklib'
 module DpkgTools
   module Package
     module Gem
-      class BuildTasks < Rake::TaskLib
+      class BuildTasks < DpkgTools::Package::BuildTasks
         attr_accessor :gem_path, :root_path
         
-        def initialize
-          yield(self) if block_given?
+        def check_setup
           raise ArgumentError, "Needs to have gem_path and root_path set" unless @gem_path && @root_path
-          
           DpkgTools::Package::Config.root_path = self.root_path
-          define
         end
         
-        def define
+        def create_builder
+          DpkgTools::Package::Gem.create_builder(@gem_path)
+        end
+        
+        def define_tasks
           # build
-          desc "Perform architecture-dependent build steps"
-          task "build-arch"
-          
-          desc "Perform architecture-independent build steps"
-          task "build-indep"
-          
-          desc "Perform all needed build steps"
-          task :build => ["build-arch", "build-indep"]
-          
-          desc "Perform architecture dependent post-build install steps"
-          task "binary-arch" => "build-arch" do
-            builder = DpkgTools::Package::Gem.create_builder(@gem_path)
-            builder.build_package
+          task "build-arch" do
+            create_builder.build_package
           end
           
-          desc "Perform architecture independent post-build install steps"
-          task "binary-indep" => "build-indep"
+          task "build-indep" do
+            create_builder.build_package
+          end
           
-          desc "Perform all needed build steps"
-          task :binary => ["binary-arch", "binary-indep"]
+          task "binary-arch" do
+            create_builder.binary_package
+          end
           
-          desc "Remove all build and install generated files"
-          task :clean do
-            builder = DpkgTools::Package::Gem.create_builder(@gem_path)
-            builder.remove_build_products
+          task "binary-indep" do
+            create_builder.binary_package
           end
         end
       end

@@ -1,3 +1,5 @@
+require 'rake'
+
 module DpkgTools
   module Package
     class Builder
@@ -12,18 +14,34 @@ module DpkgTools
         {}
       end
       
+      def architecture_independent?
+        @data.architecture_independent?
+      end
+      
+      def create_dir_if_needed(target_path)
+        FileUtils.mkdir_p(target_path) unless File.exists?(target_path)
+        raise IOError, "the path '#{target_path}' points to a file, so we can't make a directory there." if File.file?(target_path)
+      end
+      
+      def create_intermediate_buildroot
+        create_dir_if_needed(config.intermediate_buildroot)
+      end
+      
       def create_buildroot
-        Dir.mkdir(config.buildroot) unless File.directory?(config.buildroot)
+        create_dir_if_needed(config.buildroot)
       end
       
       def create_install_dirs
+      end
+      
+      def build_package_files
       end
       
       def install_package_files
       end
       
       def render_template(template)
-        conf_file = ERB.new(template).result(data.binding)
+        conf_file = ERB.new(template, nil, '-').result(data.binding)
       end
       
       def maintainer_script_targets
@@ -35,9 +53,11 @@ module DpkgTools
       
       def generate_maintainer_script(script_name)
         template = File.read(File.join(config.debian_path, "#{script_name}.erb"))
-        File.open(File.join(config.debian_path, script_name), 'w') do |f|
+        target_path = File.join(config.buildroot_DEBIAN_path, script_name)
+        File.open(target_path, 'w') do |f|
           f.write(render_template(template))
         end
+        File.chmod(0755, target_path)
       end
       
       def generate_maintainer_scripts
@@ -57,7 +77,7 @@ module DpkgTools
       end
       
       def deb_filename
-        config.deb_filename(data.debian_revision, data.debian_architecture)
+        config.deb_filename(data.debian_revision, data.debian_arch)
       end
       
       def built_deb_path
@@ -72,15 +92,22 @@ module DpkgTools
       def build_package
         create_buildroot
         create_install_dirs
+        build_package_files
+      end
+      
+      def binary_package
+        create_buildroot
+        create_install_dirs
         install_package_files
-        generate_maintainer_scripts
         create_DEBIAN_dir
+        generate_maintainer_scripts
         create_control_files
         create_deb
       end
       
       def remove_build_products
         FileUtils.remove_dir(config.buildroot) if File.exists?(config.buildroot)
+        FileUtils.remove_dir(config.intermediate_buildroot) if File.exists?(config.intermediate_buildroot)
       end
     end
   end

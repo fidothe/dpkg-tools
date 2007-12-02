@@ -7,13 +7,13 @@ module DpkgTools
             'rules'
           end
           
-          def executable?
-            true
-          end
-          
           def formatter_class
             RulesFormatter
           end
+        end
+        
+        def executable?
+          true
         end
       end
       

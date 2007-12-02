@@ -5,8 +5,10 @@ module DpkgTools
       
       class Data < DpkgTools::Package::Data
         BASE_GEM_DEPS = [{:name => 'rails-rubygem', :requirements => ['>= 1.2.5-1']},
-                         {:name => 'rake-rubygem', :requirements => ['>= 0.7.3-1']}]
-        BASE_PACKAGE_DEPS = [{:name => 'mysql-client'}, {:name => 'mysql-server'}]
+                         {:name => 'rake-rubygem', :requirements => ['>= 0.7.3-1']},
+                         {:name => 'mysql-rubygem', :requirements => ['>= 2.7-1']},
+                         {:name => 'mongrel-cluster-rubygem', :requirements => ['>= 1.0.1-1']}]
+        BASE_PACKAGE_DEPS = [{:name => 'mysql-client'}, {:name => 'mysql-server'}, {:name => 'apache2'}]
         
         class << self
           def load_package_data(base_path, filename)
@@ -50,11 +52,13 @@ module DpkgTools
           end
         end
         
-        attr_reader :spec, :config, :base_path
+        attr_reader :spec, :config, :base_path, :database_configurations
         
         def initialize(base_path)
           @data = self.class.load_package_data(base_path, 'deb.yml')
           @mongrel_cluster_data = self.class.load_package_data(base_path, 'mongrel_cluster.yml')
+          @database_configurations = self.class.load_package_data(base_path, 'database.yml')
+          
           @dependencies = self.class.process_dependencies(@data)
           @base_path = base_path
         end
@@ -109,6 +113,22 @@ module DpkgTools
         
         def mongrel_ports
           Array.new(number_of_mongrels) {|i| (mongrel_cluster_start_port.to_i + i).to_s}
+        end
+        
+        def init_name
+          @data['init_name']
+        end
+        
+        def app_install_path
+          "/var/lib/#{init_name}-app"
+        end
+        
+        def server_name
+          @data['server_name']
+        end
+        
+        def server_aliases
+          @data['server_aliases']
         end
       end
     end

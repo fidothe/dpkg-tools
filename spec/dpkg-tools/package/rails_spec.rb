@@ -11,7 +11,6 @@ end
 describe DpkgTools::Package::Rails, ".setup_from_path" do
   it "should be able to create package structure from a path to a gem file" do
     mock_setup = mock('mock DpkgTools::Package::Rails::Setup')
-    DpkgTools::Package::Rails::Setup.expects(:create_config_files).with('/path/to/rails-app')
     DpkgTools::Package::Rails::Setup.expects(:from_path).with('/path/to/rails-app').returns(mock_setup)
     mock_setup.expects(:create_structure)
     

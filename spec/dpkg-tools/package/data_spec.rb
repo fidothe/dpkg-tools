@@ -20,4 +20,14 @@ describe DpkgTools::Package::Data, "instances" do
   it "should provide access to the resources_path class method on instances" do
     @data.resources_path.should == DpkgTools::Package::Data.resources_path
   end
+  
+  it "should be able to say that it's an architecture-independent package when it is" do
+    @data.stubs(:debian_arch).returns('all')
+    @data.architecture_independent?.should be_true
+  end
+  
+  it "should be able to say that it isn't an architecture-independent package when it isn't" do
+    @data.stubs(:debian_arch).returns('i386')
+    @data.architecture_independent?.should be_false
+  end
 end

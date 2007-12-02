@@ -160,12 +160,6 @@ describe DpkgTools::Package::Gem::Setup do
     DpkgTools::Package::Gem::Setup.expects(:from_spec_and_source_via_cache).with(:spec, 'source_uri').returns(:instance)
     
     DpkgTools::Package::Gem::Setup.from_name_and_requirement('gem_name', :requirement).should == :instance
-    # 
-    # DpkgTools::Package::Gem::Data.expects(:new).with(:format).returns(:data)
-    # DpkgTools::Package::Gem::Setup.expects(:new).with(:data, 'gem byte string').returns(:instance)
-    # DpkgTools::Package::Gem::Setup.expects(:format_and_file_from_name_and_requirement).with('gem_name', :requirement).returns([:format, 'gem byte string'])
-    # 
-    # DpkgTools::Package::Gem::Setup.from_name_and_requirement('gem_name', :requirement).should == :instance
   end
   
   it "should provide access to a cache of dependencies" do

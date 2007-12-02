@@ -1,0 +1,45 @@
+mysql: "libmysqlclient-dev"
+# There are a couple of ways of notating deps. All the possible ways are detailed below... 
+# 
+# 1) Single dep for a specific version
+# mysql: 
+#   2.7: "libmysqlclient-dev"
+#
+# mysql: 
+#   2.6: "libmysqlclient-dev"
+#   2.7: "libmysqlclient-dev"
+#
+# 2) a list of deps for a specific version
+# mysql: 
+#   2.7: 
+#     - "libmysqlclient-dev"
+#     - "other-dep"
+#
+# mysql: 
+#   2.6: 
+#     - "libmysqlclient-dev"
+#   2.7: 
+#     - "libmysqlclient-dev"
+#     - "other-dep"
+#
+# 3) lists of deps and single deps for versions
+# mysql: 
+#   2.6: "libmysqlclient-dev"
+#   2.7: 
+#     - "libmysqlclient-dev"
+#     - "other-dep"
+# 
+# 4) generic deps (with specific versions having a different list)
+# mysql: 
+#   all: 
+#     - "libmysqlclient-dev"
+#     - "other-dep"
+#   2.7: "libmysqlclient-dev"
+# 
+# 5) single generic dep only
+# mysql: "libmysqlclient-dev"
+# 
+# 6) list of generic deps
+# mysql: 
+#   - "libmysqlclient-dev"
+#   - "other-dep"

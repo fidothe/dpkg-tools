@@ -1,5 +1,4 @@
---- 
-cwd: resources/mongrel_cluster.yml
+cwd: config/mongrel_cluster.yml
 log_file: log/mongrel.log
 port: "8000"
 environment: production

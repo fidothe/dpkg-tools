@@ -1,14 +1,28 @@
 #!/bin/bash -e
 
 # Make the app's DB
-DB_CREATION_STRING = 
 
 mysql -u root <<EOT
-CREATE DATABASE app-db-test;
-CREATE DATABASE app-db-production;
-GRANT ALL PRIVILEGES ON app-db-test.* TO `app-user`@localhost;
-GRANT ALL PRIVILEGES ON app-db-production.* TO `app-user`@localhost;
+<% if database_configurations['test'] -%>
+CREATE DATABASE <%= database_configurations['test']['database'] %>;
+GRANT ALL PRIVILEGES ON <%= database_configurations['test']['database'] %>.* TO `<%= database_configurations['test']['username'] %>`@localhost;
+<% end -%>
+<% if database_configurations['production'] -%>
+CREATE DATABASE <%= database_configurations['production']['database'] %>;
+GRANT ALL PRIVILEGES ON <%= database_configurations['production']['database'] %>.* TO `<%= database_configurations['test']['username'] %>`@localhost;
+<% end -%>
 EOT
 
 # invoke update-rc.d to get the app's init script loaded
-update-rc.d "app-name" defaults 90
+update-rc.d "<%= init_name %>" defaults 90
+
+# enable apache's mod_proxy_balancer
+a2enmod proxy_balancer
+
+# enable the apache config we just installed
+a2ensite <%= server_name %>
+
+# restart apache
+invoke-rc.d apache2 force-reload
+
+# N.B. we don't spawn mongrels here - that's done through capistrano

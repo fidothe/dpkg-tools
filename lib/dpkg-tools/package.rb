@@ -3,6 +3,7 @@ require File.join(File.dirname(__FILE__), 'package/data')
 require File.join(File.dirname(__FILE__), 'package/control_files')
 require File.join(File.dirname(__FILE__), 'package/setup')
 require File.join(File.dirname(__FILE__), 'package/builder')
+require File.join(File.dirname(__FILE__), 'package/rake')
 require File.join(File.dirname(__FILE__), 'package/gem')
 require File.join(File.dirname(__FILE__), 'package/rails')
 

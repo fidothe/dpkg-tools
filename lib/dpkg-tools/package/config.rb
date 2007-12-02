@@ -64,6 +64,10 @@ module DpkgTools
         File.join(debian_path, 'tmp')
       end
       
+      def intermediate_buildroot
+        File.join(base_path, 'dpkg-tools-tmp')
+      end
+      
       def bin_install_path
         File.join(buildroot, 'usr/bin')
       end

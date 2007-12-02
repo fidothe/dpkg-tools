@@ -1,3 +1,30 @@
+== 0.2.11 2007-12-01
+
+* Refactored out the Rake build tasks stuff to DRY it up a bit
+* Made certain things happen more in accordance with debian policy stuff (Gem gets installed on debian/rules build)
+* -arch and -indep rake tasks get invoked from binary and build properly (i.e. only one)
+
+== 0.2.10 2007-12-01
+
+* Tweaks to base package list for rails apps
+
+== 0.2.9 2007-12-01
+
+* Copes with nil values in Gem::Format.files (thanks, mysql...)
+* Also looks for COPYING to contain the license info
+
+== 0.2.8 2007-12-01
+
+* Maintains a list of -dev packages for gems which need to compile against them and adds those to build-time dependencies as appropriate
+
+== 0.2.7 2007-11-25
+
+* Nasty bug with hold-out from before refactoring squished
+
+== 0.2.6 2007-11-25
+
+* Maintainer scripts are in
+
 == 0.2.5 2007-11-20
 
 * Changes (under the hood) to the way control files are generated

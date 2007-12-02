@@ -63,6 +63,10 @@ describe DpkgTools::Package::Config, "instances" do
   end
   
   it "should be able to return the path to where the package buildroot should be" do
+    @config.intermediate_buildroot.should == "a/path/gemname-rubygem-1.0.8/dpkg-tools-tmp"
+  end
+  
+  it "should be able to return the path to where the package intermediate buildroot should be" do
     @config.buildroot.should == "a/path/gemname-rubygem-1.0.8/debian/tmp"
   end
   
