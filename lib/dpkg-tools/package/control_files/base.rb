@@ -48,10 +48,17 @@ module DpkgTools
           File.join(@config.debian_path, filename)
         end
         
+        def to_s
+          formatter.build
+        end
+        
         def write
-          file_contents = formatter.build
           write_method = executable? ? :write_executable : :write
-          self.class.send(write_method, file_path, file_contents)
+          self.class.send(write_method, file_path, self.to_s)
+        end
+        
+        def needs_reset?
+          File.read(file_path) != self.to_s
         end
       end
       

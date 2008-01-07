@@ -17,3 +17,11 @@ describe DpkgTools::Package::Rails, ".setup_from_path" do
     DpkgTools::Package::Rails.setup_from_path('/path/to/rails-app')
   end
 end
+
+describe DpkgTools::Package::Rails, ".create_setup" do
+  it "should be able to create a Setup instance" do
+    DpkgTools::Package::Rails::Setup.expects(:from_path).with('/path/to/rails-app').returns(:setup)
+    
+    DpkgTools::Package::Rails.create_setup('/path/to/rails-app').should == :setup
+  end
+end

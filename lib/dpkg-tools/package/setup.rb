@@ -2,6 +2,8 @@ module DpkgTools
   module Package
     class Setup
       class << self
+        include DpkgTools::Package::FSMethods
+        
         # Should be overridden by subclasses to check whether the 
         # directory at base_path needs to be bootstrapped in order
         # for a DpkgTools::Package::Data subclass to be instantiated
@@ -36,8 +38,12 @@ module DpkgTools
         end
       end
       
+      def maintainer_script_template_names
+        ['postinst.erb', 'postrm.erb', 'preinst.erb', 'prerm.erb']
+      end
+      
       def copy_maintainer_script_templates
-        ['post-inst.erb', 'post-rm.erb', 'pre-inst.erb', 'pre-rm.erb'].each do |filename|
+        maintainer_script_template_names.each do |filename|
           resource = File.join(@data.resources_path, filename)
           FileUtils.cp(resource, File.join(@config.debian_path, filename)) if File.file?(resource)
         end
@@ -52,6 +58,34 @@ module DpkgTools
         prepare_package
         write_control_files
         copy_maintainer_script_templates
+      end
+      
+      def reset_control_files
+        control_file_classes.each do |klass|
+          control_file = klass.new(@data, @config)
+          if control_file.needs_reset?
+            FileUtils.mv(control_file.file_path, control_file.file_path + '.bak')
+            control_file.write 
+          end
+        end
+      end
+      
+      def reset_maintainer_script_templates
+        maintainer_script_template_names.each do |filename|
+          source = File.join(@data.resources_path, filename)
+          target = File.join(@config.debian_path, filename)
+          if File.file?(source) && !FileUtils.identical?(source, target)
+            FileUtils.mv(target, target + '.bak')
+            FileUtils.cp(source, target) 
+          end
+        end
+      end
+      
+      # This should be overridden to allow features such as the dpkg:setup:regen rake task to 
+      # reset the state of package-type specific files (i.e. files that get copied across by
+      # prepare_package).
+      def reset_package_resource_files
+        
       end
     end
   end

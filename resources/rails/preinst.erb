@@ -1,0 +1,36 @@
+#!/bin/bash -e
+
+DATADIR="<%= app_install_path %>"
+
+# Create a group for the app if it isn't already there
+if ! getent group "<%= name %>" >/dev/null; then
+	# Adding system group for the app: <%= name %>.
+	addgroup --system "<%= name %>" >/dev/null
+fi
+
+# Create a user for the app if it isn't already there
+if ! getent passwd <%= name %> >/dev/null; then
+	# Adding system user: <%= name %>.
+	adduser \
+	  --system \
+	  --disabled-login \
+	  --ingroup <%= name %> \
+	  --home $DATADIR \
+	  --gecos "<%= name %> Rails app" \
+	  --shell /bin/bash \
+	  <%= name %>  >/dev/null
+fi
+
+# Create the app's home dir, if it isn't there already...
+if [ ! -d $DATADIR -a ! -L $DATADIR ]; then
+ 	mkdir -p $DATADIR
+fi
+
+# Fix ownership of the app's home dir...
+# The "set +e" is necessary as e.g. a ".journal" of a ext3 partition is
+# not chgrp'able (#318435). [nicked from mysql-server 5's preinst]
+set +e
+chown <%= name %>:<%= name %> $DATADIR
+find $DATADIR -follow -not -group "<%= name %>" -print0 2>/dev/null \
+  | xargs -0 --no-run-if-empty chgrp "<%= name %>"
+set -e

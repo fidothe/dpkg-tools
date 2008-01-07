@@ -1,0 +1,38 @@
+#!/bin/bash -e
+
+# invoke update-rc.d to get the app's init script loaded
+update-rc.d "<%= name %>" remove
+
+# stop apache attempting to proxy for us
+a2dissite "<%= name %>"
+invoke-rc.d apache2 force-reload
+
+# Remove the app's user if it's there
+if getent passwd "<%= name %>" >/dev/null; then
+	# Removing system user: <%= name %>.
+	deluser "<%= name %>"  >/dev/null
+fi
+
+# Remove the group for the app if it's there
+if getent group "<%= name %>" >/dev/null; then
+	# Removing system group for the app: <%= name %>.
+	delgroup --system "<%= name %>" >/dev/null
+fi
+
+# remove the chunk of sudoers
+SUDOERS_TMP=`mktemp` || exit 1
+sed -e '/^# #Package <%= name %> START#/, /^# #Package <%= name %> STOP#/ d' /etc/sudoers > $SUDOERS_TMP
+
+# check the syntax of the sudoers string
+visudo -cf $SUDOERS_TMP
+if [ $? -ne 0 ]; then
+	rm -f $SUDOERS_TMP
+	exit 1
+fi
+
+# rewrite /etc/sudoers
+cat $SUDOERS_TMP > /etc/sudoers
+if [ $? -ne 0 ]; then
+	rm -f $SUDOERS_TMP
+	exit 1
+fi

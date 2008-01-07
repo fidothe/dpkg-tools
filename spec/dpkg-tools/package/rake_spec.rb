@@ -28,13 +28,16 @@ describe DpkgTools::Package::BuildTasks, "instances" do
     @build_tasks = DpkgTools::Package::BuildTasks.new
     @mock_builder = stub('DpkgTools::Package::Builder')
     @build_tasks.stubs(:create_builder).returns(@mock_builder)
+    @mock_setup = stub('DpkgTools::Package::Setup')
+    @build_tasks.stubs(:create_setup).returns(@mock_setup)
   end
   
   after(:each) do
     Rake.application = nil
   end
   
-  it "should define the needed base tasks" do
+  it "should define the needed base tasks for debian/rules emulation" do
+    @build_tasks.stubs(:task).with(anything)
     @build_tasks.expects(:task).with(:clean)
     @build_tasks.expects(:task).with('build-arch')
     @build_tasks.expects(:task).with('build-indep')
@@ -72,5 +75,13 @@ describe DpkgTools::Package::BuildTasks, "instances" do
     
     @rake['build-indep'].expects(:invoke)
     @rake['build'].invoke
+  end
+  
+  it "should call the correct reset methods on a setup instance from dpkg:setup:reset" do
+    @mock_setup.expects(:reset_maintainer_script_templates)
+    @mock_setup.expects(:reset_control_files)
+    @mock_setup.expects(:reset_package_resource_files)
+    
+    @rake['dpkg:setup:reset'].invoke
   end
 end

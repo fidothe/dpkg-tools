@@ -72,9 +72,31 @@ describe DpkgTools::Package::ControlFiles::Base, "instances" do
   end
   
   it "should be able to write itself out" do
-    @formatter.expects(:build).returns('file contents')
+    @control_file.expects(:to_s).returns('file contents')
     DpkgTools::Package::ControlFiles::Base.expects(:write).with('/a/path/to/package/debian/base', 'file contents')
     
     @control_file.write
+  end
+  
+  it "should be able to create a string with the file contents in" do
+    @formatter.expects(:build).returns('file contents')
+    
+    @control_file.to_s.should == 'file contents'
+  end
+  
+  it "should be able to tell that the existing control file is different to the one that this instance would generate" do
+    @control_file.expects(:to_s).returns('new file contents')
+    @control_file.expects(:file_path).returns('/a/path/to/control_file')
+    File.expects(:read).with('/a/path/to/control_file').returns('file contents')
+    
+    @control_file.needs_reset?.should be_true
+  end
+  
+  it "should be able to tell that the existing control file is the same as the one that this instance would generate" do
+    @control_file.expects(:to_s).returns('file contents')
+    @control_file.expects(:file_path).returns('/a/path/to/control_file')
+    File.expects(:read).with('/a/path/to/control_file').returns('file contents')
+    
+    @control_file.needs_reset?.should be_false
   end
 end

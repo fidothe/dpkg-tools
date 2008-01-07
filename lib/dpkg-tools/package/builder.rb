@@ -1,8 +1,11 @@
+require 'rubygems'
 require 'rake'
 
 module DpkgTools
   module Package
     class Builder
+      include DpkgTools::Package::FSMethods
+      
       attr_reader :data, :config
       
       def initialize(data)
@@ -16,11 +19,6 @@ module DpkgTools
       
       def architecture_independent?
         @data.architecture_independent?
-      end
-      
-      def create_dir_if_needed(target_path)
-        FileUtils.mkdir_p(target_path) unless File.exists?(target_path)
-        raise IOError, "the path '#{target_path}' points to a file, so we can't make a directory there." if File.file?(target_path)
       end
       
       def create_intermediate_buildroot
@@ -46,7 +44,7 @@ module DpkgTools
       
       def maintainer_script_targets
         names = Dir.entries(config.debian_path).select do |name| 
-          ['post-inst.erb', 'pre-inst.erb', 'post-rm.erb', 'pre-rm.erb'].include?(name)
+          ['postinst.erb', 'preinst.erb', 'postrm.erb', 'prerm.erb'].include?(name)
         end
         names.collect { |name| name[/^(.+)\.erb$/, 1] }
       end

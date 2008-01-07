@@ -15,6 +15,10 @@ module DpkgTools
           DpkgTools::Package::Rails.create_builder(@base_path)
         end
         
+        def create_setup
+          DpkgTools::Package::Rails.create_setup(@base_path)
+        end
+        
         def define_tasks
           task "binary-arch" do
             create_builder.binary_package
@@ -22,6 +26,15 @@ module DpkgTools
           
           task "binary-indep" do
             create_builder.binary_package
+          end
+          
+          namespace :dpkg do
+            desc <<-EOD
+              Regenerate the config/mongre_cluster.yml file.
+            EOD
+            task :mongrel_cluster do
+              create_setup.generate_mongrel_cluster_config
+            end
           end
         end
       end

@@ -1,8 +1,29 @@
+== 0.2.15 2007-12-14
+
+* Modified maintainer scripts for controlled modification of sudoers
+* Modified Rails setup tasks so they can be re-run on an app from Rake
+
+== 0.2.14 2007-12-04
+
+* Modified maintainer scripts to make them tidy up
+  after themselves a bit better
+* Added username to deploy.rb
+
+== 0.2.13 2007-12-04
+
+* Includes modified Capistrano deployment recipes
+* Generates the ssh authorized_keys file in a Rails package
+
+== 0.2.12 2007-12-01
+
+* postinst quotes the MySQL strings correctly now.
+
 == 0.2.11 2007-12-01
 
 * Refactored out the Rake build tasks stuff to DRY it up a bit
 * Made certain things happen more in accordance with debian policy stuff (Gem gets installed on debian/rules build)
 * -arch and -indep rake tasks get invoked from binary and build properly (i.e. only one)
+* postinst and comrades actually have the right names now
 
 == 0.2.10 2007-12-01
 

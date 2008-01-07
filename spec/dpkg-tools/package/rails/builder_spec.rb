@@ -13,9 +13,7 @@ describe DpkgTools::Package::Rails::Builder, "instances" do
   before(:each) do
     @config = DpkgTools::Package::Config.new('rails-app', '1.0.8')
     DpkgTools::Package::Rails::Data.expects(:load_package_data).with('/a/path/to/rails-app/working/dir', 'deb.yml').
-      returns({'name' => 'rails-app', 'version' => '1.0.8', 'server_name' => 'rails-app.org'})
-    DpkgTools::Package::Rails::Data.expects(:load_package_data).with('/a/path/to/rails-app/working/dir', 'mongrel_cluster.yml').
-      returns({'port' => '8000', 'servers' => 3})
+      returns({'name' => 'rails-app', 'version' => '1.0.8', 'server_name' => 'rails-app.org'}, 'mongrel_cluster' => {'port' => '8000', 'servers' => 3})
     DpkgTools::Package::Rails::Data.expects(:load_package_data).with('/a/path/to/rails-app/working/dir', 'database.yml').
       returns({'development' => {'database' => 'db_name'}})
     @data = DpkgTools::Package::Rails::Data.new('/a/path/to/rails-app/working/dir')
@@ -28,11 +26,11 @@ describe DpkgTools::Package::Rails::Builder, "instances" do
   end
   
   it "should be able to create the needed install dirs" do
-    FileUtils.expects(:mkdir_p).with('/a/path/to/rails-app/working/dir/debian/tmp/etc/init.d')
-    FileUtils.expects(:mkdir_p).with('/a/path/to/rails-app/working/dir/debian/tmp/etc/apache2/sites-available')
-    FileUtils.expects(:mkdir_p).with('/a/path/to/rails-app/working/dir/debian/tmp/etc/logrotate.d')
-    FileUtils.expects(:mkdir_p).with('/a/path/to/rails-app/working/dir/debian/tmp/var/lib/rails-app-app')
-    FileUtils.expects(:mkdir_p).with('/a/path/to/rails-app/working/dir/debian/tmp/var/log/apache2/rails-app.org')
+    @builder.expects(:create_dir_if_needed).with('/a/path/to/rails-app/working/dir/debian/tmp/etc/init.d')
+    @builder.expects(:create_dir_if_needed).with('/a/path/to/rails-app/working/dir/debian/tmp/etc/apache2/sites-available')
+    @builder.expects(:create_dir_if_needed).with('/a/path/to/rails-app/working/dir/debian/tmp/etc/logrotate.d')
+    @builder.expects(:create_dir_if_needed).with('/a/path/to/rails-app/working/dir/debian/tmp/var/lib/rails-app')
+    @builder.expects(:create_dir_if_needed).with('/a/path/to/rails-app/working/dir/debian/tmp/var/log/rails-app/apache2')
     
     @builder.create_install_dirs
   end
@@ -51,31 +49,65 @@ describe DpkgTools::Package::Rails::Builder, "instances" do
   
   it "should generate all the needed config files" do
     @builder.expects(:generate_conf_file).with('/a/path/to/rails-app/working/dir/config/apache.conf.erb',
-                                               '/a/path/to/rails-app/working/dir/debian/tmp/etc/apache2/sites-available/rails-app.org')
+                                               '/a/path/to/rails-app/working/dir/debian/tmp/etc/apache2/sites-available/rails-app')
                                                
     @builder.expects(:generate_conf_file).with('/a/path/to/rails-app/working/dir/config/logrotate.conf.erb',
-                                               '/a/path/to/rails-app/working/dir/debian/tmp/etc/logrotate.d/rails-app.org-apache2')
+                                               '/a/path/to/rails-app/working/dir/debian/tmp/etc/logrotate.d/rails-app')
                                                
+    @builder.expects(:generate_conf_file).with('/a/path/to/rails-app/working/dir/config/mongrel_cluster_init.erb',
+                                               '/a/path/to/rails-app/working/dir/debian/tmp/etc/init.d/rails-app')
+                                           
     @builder.generate_conf_files
   end
   
-  it "should be able to copy the conf files to the right place" do
-    @builder.expects(:generate_conf_files)
-    @builder.expects(:mongrel_cluster_init_script_path).returns('/path/to/mongrel_cluster/gem/resources/mongrel_cluster')
-    FileUtils.expects(:cp).with('/path/to/mongrel_cluster/gem/resources/mongrel_cluster', 
-                                '/a/path/to/rails-app/working/dir/debian/tmp/etc/init.d/mongrel_cluster')
-    @builder.expects(:sh).with('chown -R root:root "/a/path/to/rails-app/working/dir/debian/tmp"')
-    @builder.expects(:sh).with('chmod 755 "/a/path/to/rails-app/working/dir/debian/tmp/etc/init.d/mongrel_cluster"')
+  it "should be able to read the public ssh keys in deployers_ssh_keys" do
+    @data.stubs(:deployers_ssh_keys_dir).returns('/path/to/keys')
+    Dir.stubs(:entries).with('/path/to/keys').returns(['key1', 'key2'])
+    File.stubs(:file?).returns(true)
+    File.expects(:read).with('/path/to/keys/key1').returns('key1')
+    File.expects(:read).with('/path/to/keys/key2').returns('key2')
     
-    @builder.install_package_files
+    @builder.read_deployers_ssh_keys.should == ['key1', 'key2']
   end
   
-  it "should be able to locate the mongrel_cluster init script in the gem..." do
-    stub_spec = stub("Gem::Specification", :full_gem_path => "/path/to/mongrel_cluster/gem")
-    stub_index = stub("Gem::SourceIndex")
-    stub_index.stubs(:find_name).with('mongrel_cluster', [">0"]).returns([stub_spec])
-    Gem.expects(:source_index).returns(stub_index)
+  it "should be able to read the public ssh keys in deployers_ssh_keys, ignoring any directories there" do
+    @data.stubs(:deployers_ssh_keys_dir).returns('/path/to/keys')
+    Dir.stubs(:entries).with('/path/to/keys').returns(['is_a_dir', 'key1', 'key2'])
+    File.stubs(:file?).returns(true)
+    File.expects(:file?).with('/path/to/keys/is_a_dir').returns(false)
+    File.expects(:read).with('/path/to/keys/key1').returns('key1')
+    File.expects(:read).with('/path/to/keys/key2').returns('key2')
     
-    @builder.mongrel_cluster_init_script_path.should == "/path/to/mongrel_cluster/gem/resources/mongrel_cluster"
+    @builder.read_deployers_ssh_keys.should == ['key1', 'key2']
+  end
+  
+  it "should be able to write out an authorized_keys file from a list of keys" do
+    mock_file = mock('File')
+    mock_file.expects(:write).with("key1\nkey2")
+    File.expects(:open).with('/a/path/to/rails-app/working/dir/debian/tmp/var/lib/rails-app/.ssh/authorized_keys', 'w').
+      yields(mock_file)
+    @builder.expects(:sh).with('chmod 600 "/a/path/to/rails-app/working/dir/debian/tmp/var/lib/rails-app/.ssh/authorized_keys"')
+    
+    @builder.write_authorized_keys(['key1', 'key2'])
+  end
+  
+  it "should be able to generate the authorized_keys file from the public keys in deployers_ssh_keys" do
+    @builder.expects(:create_dir_if_needed).with('/a/path/to/rails-app/working/dir/debian/tmp/var/lib/rails-app/.ssh')
+    @builder.expects(:sh).with('chmod 700 "/a/path/to/rails-app/working/dir/debian/tmp/var/lib/rails-app/.ssh"')
+    
+    @builder.expects(:read_deployers_ssh_keys).returns(['key1', 'key2'])
+    @builder.expects(:write_authorized_keys).with(['key1', 'key2'])
+    
+    @builder.generate_authorized_keys
+  end
+  
+  it "should be able to perform all the needed steps to put install the package's files " do
+    @builder.expects(:generate_conf_files)
+    @builder.expects(:sh).with('chown -R root:root "/a/path/to/rails-app/working/dir/debian/tmp"')
+    @builder.expects(:sh).with('chmod 755 "/a/path/to/rails-app/working/dir/debian/tmp/etc/init.d/rails-app"')
+    
+    @builder.expects(:generate_authorized_keys)
+    
+    @builder.install_package_files
   end
 end

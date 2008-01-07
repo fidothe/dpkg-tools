@@ -15,7 +15,6 @@ describe DpkgTools::Package::Rails::Data, ".new" do
   
   it "should take the rails app base path, then read in the config/deb.yml" do
     DpkgTools::Package::Rails::Data.expects(:load_package_data).with('base_path', 'deb.yml').returns({'name' => 'rails-app', 'version' => '1.0.8'})
-    DpkgTools::Package::Rails::Data.expects(:load_package_data).with('base_path', 'mongrel_cluster.yml').returns({'port' => '8000', 'servers' => 3})
     DpkgTools::Package::Rails::Data.expects(:load_package_data).with('base_path', 'database.yml').returns({'development' => {'database' => 'db_name'}})
     DpkgTools::Package::Rails::Data.expects(:process_dependencies).with({'name' => 'rails-app', 'version' => '1.0.8'}).returns(:deps)
     DpkgTools::Package::Rails::Data.new('base_path').should be_an_instance_of(DpkgTools::Package::Rails::Data)
@@ -24,13 +23,13 @@ end
 
 describe DpkgTools::Package::Rails::Data, "instances" do
   before(:each) do
+    @mongrel_cluster_config_data = {'port' => '8000', 'servers' => 3}
     package_data = {'name' => 'rails-app', 'version' => '1.0.8', 'license' => '(c) Matt 4evah', 
                     'summary' => "Matt's great Rails app", 'server_name' => 'test.host', 
-                    'server_aliases' => ['www.test.host'], 'init_name' => 'rails-app'}
+                    'server_aliases' => ['www.test.host'],
+                    'mongrel_cluster' => @mongrel_cluster_config_data}
     DpkgTools::Package::Rails::Data.stubs(:load_package_data).with('base_path', 'deb.yml').
       returns(package_data)
-    mongrel_cluster_data = {'port' => '8000', 'servers' => 3}
-    DpkgTools::Package::Rails::Data.stubs(:load_package_data).with('base_path', 'mongrel_cluster.yml').returns(mongrel_cluster_data)
     @database_configurations = YAML.load_file(File.dirname(__FILE__) + '/../../../fixtures/database.yml')
     DpkgTools::Package::Rails::Data.stubs(:load_package_data).with('base_path', 'database.yml').returns(@database_configurations)
     DpkgTools::Package::Rails::Data.expects(:process_dependencies).with(package_data).returns(:deps)
@@ -97,12 +96,8 @@ describe DpkgTools::Package::Rails::Data, "instances" do
     DpkgTools::Package::Rails::Data.resources_path.should == File.expand_path(File.dirname(__FILE__) + '/../../../../resources/rails')
   end
   
-  it "should provide access to the name used by init.d for the app" do
-    @data.init_name.should == 'rails-app'
-  end
-  
   it "should provide access to the target installation path for the app (i.e. /var/lib/blah)" do
-    @data.app_install_path.should == '/var/lib/rails-app-app'
+    @data.app_install_path.should == '/var/lib/rails-app'
   end
   
   it "should provide access to the server's main DNS name" do
@@ -115,6 +110,54 @@ describe DpkgTools::Package::Rails::Data, "instances" do
   
   it "should provide access to the apps' databases" do
     @data.database_configurations.should == @database_configurations
+  end
+  
+  it "should provide the system user name for the app" do
+    @data.username.should == 'rails-app'
+  end
+  
+  it "should provide the path to the cluster's PIDfile dir" do
+    @data.pidfile_dir_path.should == '/var/run/rails-app'
+  end
+  
+  it "should provide the path to the logfile dirs" do
+    @data.logfile_path.should == '/var/log/rails-app'
+  end
+  
+  it "should provide the path to the cluster's config root in /etc" do
+    @data.conf_dir_path.should == '/etc/rails-app'
+  end
+  
+  it "should provide the capistrano application name" do
+    @data.application.should == @data.name
+  end
+  
+  it "should provide the name of the user to ssh into servers as" do
+    @data.user.should == @data.name
+  end
+  
+  it "should provide the path to the capistrano deploy_to location" do
+    @data.deploy_to.should == @data.app_install_path
+  end
+  
+  it "should provide the path to the deployer's ssh keys dir in the package dir" do
+    @data.deployers_ssh_keys_dir.should == 'base_path/config/deployers_ssh_keys'
+  end
+  
+  it "should provide access to the init script's path" do
+    @data.init_script_path.should == '/etc/init.d/rails-app'
+  end
+  
+  it "should provide access to the app user's .ssh path" do
+    @data.dot_ssh_path.should == '/var/lib/rails-app/.ssh'
+  end
+  
+  it "should provide access to the app user's ssh authorized_keys file" do
+    @data.authorized_keys_path.should == '/var/lib/rails-app/.ssh/authorized_keys'
+  end
+  
+  it "should provide access to the raw hash for mongrel_cluster data" do
+    @data.mongrel_cluster_config_hash.should == @mongrel_cluster_config_data
   end
 end
 

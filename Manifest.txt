@@ -20,6 +20,7 @@ lib/dpkg-tools/package/control_files/copyright.rb
 lib/dpkg-tools/package/control_files/rakefile.rb
 lib/dpkg-tools/package/control_files/rules.rb
 lib/dpkg-tools/package/data.rb
+lib/dpkg-tools/package/fs_methods.rb
 lib/dpkg-tools/package/gem.rb
 lib/dpkg-tools/package/gem/builder.rb
 lib/dpkg-tools/package/gem/control_files.rb
@@ -32,6 +33,7 @@ lib/dpkg-tools/package/gem/rake.rb
 lib/dpkg-tools/package/gem/setup.rb
 lib/dpkg-tools/package/rails.rb
 lib/dpkg-tools/package/rails/builder.rb
+lib/dpkg-tools/package/rails/cap.rb
 lib/dpkg-tools/package/rails/control_files.rb
 lib/dpkg-tools/package/rails/control_files/changelog.rb
 lib/dpkg-tools/package/rails/control_files/control.rb
@@ -47,11 +49,13 @@ log/debug.log
 resources/gem/gems_to_deps.yml
 resources/rails/apache.conf.erb
 resources/rails/deb.yml
+resources/rails/deploy.rb
 resources/rails/logrotate.conf.erb
 resources/rails/mongrel_cluster.yml
-resources/rails/post-inst.erb
-resources/rails/post-rm.erb
-resources/rails/pre-inst.erb
+resources/rails/mongrel_cluster_init.erb
+resources/rails/postinst.erb
+resources/rails/postrm.erb
+resources/rails/preinst.erb
 script/destroy
 script/generate
 script/txt2html
@@ -67,6 +71,7 @@ spec/dpkg-tools/package/control_files/rakefile_spec.rb
 spec/dpkg-tools/package/control_files/rules_spec.rb
 spec/dpkg-tools/package/control_files_spec.rb
 spec/dpkg-tools/package/data_spec.rb
+spec/dpkg-tools/package/fs_methods_spec.rb
 spec/dpkg-tools/package/gem/builder_spec.rb
 spec/dpkg-tools/package/gem/control_files/changelog_spec.rb
 spec/dpkg-tools/package/gem/control_files/control_spec.rb
@@ -78,6 +83,7 @@ spec/dpkg-tools/package/gem/rake_spec.rb
 spec/dpkg-tools/package/gem/setup_spec.rb
 spec/dpkg-tools/package/gem_spec.rb
 spec/dpkg-tools/package/rails/builder_spec.rb
+spec/dpkg-tools/package/rails/cap_spec.rb
 spec/dpkg-tools/package/rails/control_files/changelog_spec.rb
 spec/dpkg-tools/package/rails/control_files/control_spec.rb
 spec/dpkg-tools/package/rails/control_files/copyright_spec.rb

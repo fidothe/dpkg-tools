@@ -3,6 +3,7 @@ require File.join(File.dirname(__FILE__), 'rails/setup')
 require File.join(File.dirname(__FILE__), 'rails/builder')
 require File.join(File.dirname(__FILE__), 'rails/control_files')
 require File.join(File.dirname(__FILE__), 'rails/rake')
+require File.join(File.dirname(__FILE__), 'rails/cap')
 
 module DpkgTools
   module Package
@@ -12,8 +13,12 @@ module DpkgTools
           Builder.from_path(path_to_app)
         end
         
+        def create_setup(path_to_app)
+          Setup.from_path(path_to_app)
+        end
+        
         def setup_from_path(path_to_app)
-          Setup.from_path(path_to_app).create_structure
+          create_setup(path_to_app).create_structure
         end
       end
     end

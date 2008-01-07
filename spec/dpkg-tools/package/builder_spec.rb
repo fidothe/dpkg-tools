@@ -60,8 +60,8 @@ describe DpkgTools::Package::Builder, "instances" do
   end
   
   it "should be able to report which maintainer scripts need to be generated" do
-    Dir.expects(:entries).with('/a/path/to/rails-app-1.0.8/debian').returns(['.', '..', 'post-inst.erb', 'pre-inst.erb', 'post-inst'])
-    @builder.maintainer_script_targets.should == ['post-inst', 'pre-inst']
+    Dir.expects(:entries).with('/a/path/to/rails-app-1.0.8/debian').returns(['.', '..', 'postinst.erb', 'preinst.erb', 'postinst'])
+    @builder.maintainer_script_targets.should == ['postinst', 'preinst']
   end
   
   it "should be able to render an erb template using data as the binding" do
@@ -70,45 +70,24 @@ describe DpkgTools::Package::Builder, "instances" do
   end
   
   it "should be able to generate a maintainer script" do
-    File.expects(:read).with('/a/path/to/rails-app-1.0.8/debian/post-inst.erb').returns('template')
+    File.expects(:read).with('/a/path/to/rails-app-1.0.8/debian/postinst.erb').returns('template')
     mock_file = mock('File')
     mock_file.expects(:write).with('rendered template')
-    File.expects(:open).with('/a/path/to/rails-app-1.0.8/debian/tmp/DEBIAN/post-inst', 'w').yields(mock_file)
-    File.expects(:chmod).with(0755, '/a/path/to/rails-app-1.0.8/debian/tmp/DEBIAN/post-inst')
+    File.expects(:open).with('/a/path/to/rails-app-1.0.8/debian/tmp/DEBIAN/postinst', 'w').yields(mock_file)
+    File.expects(:chmod).with(0755, '/a/path/to/rails-app-1.0.8/debian/tmp/DEBIAN/postinst')
     
     @builder.expects(:render_template).with('template').returns('rendered template')
     
-    @builder.generate_maintainer_script('post-inst')
+    @builder.generate_maintainer_script('postinst')
   end
   
   it "should be able to generate all the maintainer scripts" do
-    @builder.expects(:maintainer_script_targets).returns(['post-inst', 'pre-inst'])
-    @builder.expects(:generate_maintainer_script).with('post-inst')
-    @builder.expects(:generate_maintainer_script).with('pre-inst')
+    @builder.expects(:maintainer_script_targets).returns(['postinst', 'preinst'])
+    @builder.expects(:generate_maintainer_script).with('postinst')
+    @builder.expects(:generate_maintainer_script).with('preinst')
     
     @builder.generate_maintainer_scripts
   end 
-  
-  it "should be able to make a directory that isn't there" do
-    File.expects(:exists?).with('path').returns(false)
-    FileUtils.expects(:mkdir_p).with('path')
-    @builder.create_dir_if_needed('path')
-  end
-  
-  it "should be able to conditionally make a directory" do
-    File.expects(:exists?).with('path').returns(true)
-    File.expects(:file?).with('path').returns(false)
-    FileUtils.expects(:mkdir_p).never
-    @builder.create_dir_if_needed('path')
-  end
-  
-  it "should error if directory it was asked to make is an existing file" do
-    File.expects(:exists?).with('path').returns(true)
-    File.expects(:file?).with('path').returns(true)
-    FileUtils.expects(:mkdir_p).never
-    
-    lambda { @builder.create_dir_if_needed('path') }.should raise_error
-  end
   
   it "should be able to report that it's an architecture independent package when it is" do
     @stub_data.stubs(:architecture_independent?).returns(true)

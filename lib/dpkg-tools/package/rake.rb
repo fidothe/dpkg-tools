@@ -29,6 +29,12 @@ module DpkgTools
         
       end
       
+      # Override this method to properly return an instantiated Setup object.
+      # This is used by the setup helpers, like dpkg:setup:diff and dpkg:setup:regen
+      def create_setup
+        
+      end
+      
       # Defines the base rake tasks and ensures that you only need to define the create_builder function and 
       # build-arch, build-indep, binary-arch and binary-indep tasks as you need to
       def define_base_tasks
@@ -60,6 +66,23 @@ module DpkgTools
         desc "Remove all build and install generated files"
         task :clean do
           create_builder.remove_build_products
+        end
+        
+        # dpkg-tools rake tasks
+        namespace :dpkg do
+          namespace :setup do
+            desc <<-EOD
+              Reset any files generated during initial setup to their pristine state.
+              Any of those files modified by you will be moved to <file_name>.bak first.
+              Identical files won't be touched.
+            EOD
+            task :reset do
+              setup = create_setup
+              setup.reset_maintainer_script_templates
+              setup.reset_control_files
+              setup.reset_package_resource_files
+            end
+          end
         end
       end
     end

@@ -46,20 +46,65 @@ describe DpkgTools::Package::Setup, "#create_structure" do
     @setup.write_control_files
   end
   
+  it "should be able to return a list of maintainer script template names" do
+    @setup.maintainer_script_template_names.should == ['postinst.erb', 'postrm.erb', 'preinst.erb', 'prerm.erb']
+  end
+  
   it "should be able to copy across any of the maintainer script templates present in the resources dir" do
     @data.stubs(:resources_path).returns('/a/path/to/resources')
-    File.expects(:file?).with('/a/path/to/resources/post-inst.erb').returns(true)
-    File.expects(:file?).with('/a/path/to/resources/post-rm.erb').returns(false)
-    File.expects(:file?).with('/a/path/to/resources/pre-inst.erb').returns(false)
-    File.expects(:file?).with('/a/path/to/resources/pre-rm.erb').returns(true)
+    File.expects(:file?).with('/a/path/to/resources/postinst.erb').returns(true)
+    File.expects(:file?).with('/a/path/to/resources/postrm.erb').returns(false)
+    File.expects(:file?).with('/a/path/to/resources/preinst.erb').returns(false)
+    File.expects(:file?).with('/a/path/to/resources/prerm.erb').returns(true)
     
-    FileUtils.expects(:cp).with('/a/path/to/resources/post-inst.erb', '/a/path/to/package/dirs/hello-1/debian/post-inst.erb')
-    FileUtils.expects(:cp).with('/a/path/to/resources/pre-rm.erb', '/a/path/to/package/dirs/hello-1/debian/pre-rm.erb')
+    FileUtils.expects(:cp).with('/a/path/to/resources/postinst.erb', '/a/path/to/package/dirs/hello-1/debian/postinst.erb')
+    FileUtils.expects(:cp).with('/a/path/to/resources/prerm.erb', '/a/path/to/package/dirs/hello-1/debian/prerm.erb')
     
     @setup.copy_maintainer_script_templates
   end
   
   it "should provide a no-op version of prepare_package" do
     @setup.should respond_to(:prepare_package)
+  end
+end
+
+describe DpkgTools::Package::Setup, "regenerating control files and maintainer scripts" do
+  before(:each) do
+    @data = stub("stub DpkgTools::Package::Data", :name => 'hello', :version => '1')
+    DpkgTools::Package::Config.root_path = '/a/path/to/package/dirs'
+    @config = DpkgTools::Package::Config.new('hello', '1', {})
+    DpkgTools::Package::Config.expects(:new).with('hello', '1', {}).returns(@config)
+    
+    @setup = DpkgTools::Package::Setup.new(@data, :base_path => 'base_path')
+  end
+  
+  it "should be able to regenerate the control files, saving the existing files to name.bak" do
+    mock_control_file_class = mock('DpkgTools::Package::ControlFile')
+    mock_control_file_class.expects(:new).with(@data, @config).returns(mock_control_file_class)
+    mock_control_file_class.stubs(:needs_reset?).returns(true)
+    mock_control_file_class.stubs(:file_path).returns('/a/path/to/control_file')
+    mock_control_file_class.expects(:write)
+    FileUtils.expects(:mv).with('/a/path/to/control_file', '/a/path/to/control_file.bak')
+    
+    @setup.expects(:control_file_classes).returns([mock_control_file_class])
+    @setup.reset_control_files
+  end
+  
+  it "should be able to regenerate maintainer scripts, as needed" do
+    @data.stubs(:resources_path).returns('/a/path/to/resources')
+    File.expects(:file?).with('/a/path/to/resources/postinst.erb').returns(true)
+    File.expects(:file?).with('/a/path/to/resources/postrm.erb').returns(false)
+    File.expects(:file?).with('/a/path/to/resources/preinst.erb').returns(false)
+    File.expects(:file?).with('/a/path/to/resources/prerm.erb').returns(true)
+    
+    FileUtils.expects(:identical?).with('/a/path/to/resources/prerm.erb', 
+                                        '/a/path/to/package/dirs/hello-1/debian/prerm.erb').returns(true)
+    FileUtils.expects(:identical?).with('/a/path/to/resources/postinst.erb', 
+                                         '/a/path/to/package/dirs/hello-1/debian/postinst.erb').returns(false)
+    FileUtils.expects(:mv).with('/a/path/to/package/dirs/hello-1/debian/postinst.erb',
+                                '/a/path/to/package/dirs/hello-1/debian/postinst.erb.bak')
+    FileUtils.expects(:cp).with('/a/path/to/resources/postinst.erb', '/a/path/to/package/dirs/hello-1/debian/postinst.erb')
+    
+    @setup.reset_maintainer_script_templates
   end
 end

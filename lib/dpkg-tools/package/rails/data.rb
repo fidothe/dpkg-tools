@@ -56,7 +56,7 @@ module DpkgTools
         
         def initialize(base_path)
           @data = self.class.load_package_data(base_path, 'deb.yml')
-          @mongrel_cluster_data = self.class.load_package_data(base_path, 'mongrel_cluster.yml')
+          @mongrel_cluster_data = @data['mongrel_cluster']
           @database_configurations = self.class.load_package_data(base_path, 'database.yml')
           
           @dependencies = self.class.process_dependencies(@data)
@@ -103,6 +103,10 @@ module DpkgTools
           [:base_path, 'lib/tasks/dpkg-tools.rake']
         end
         
+        def mongrel_cluster_config_hash
+          @mongrel_cluster_data
+        end
+        
         def number_of_mongrels
           @mongrel_cluster_data['servers']
         end
@@ -120,7 +124,39 @@ module DpkgTools
         end
         
         def app_install_path
-          "/var/lib/#{init_name}-app"
+          "/var/lib/#{name}"
+        end
+        
+        def pidfile_dir_path
+          "/var/run/#{name}"
+        end
+        
+        def logfile_path
+          "/var/log/#{name}"
+        end
+        
+        def conf_dir_path
+          "/etc/#{name}"
+        end
+        
+        def init_script_path
+          "/etc/init.d/#{name}"
+        end
+        
+        def dot_ssh_path
+          "#{app_install_path}/.ssh"
+        end
+        
+        def authorized_keys_path
+          "#{dot_ssh_path}/authorized_keys"
+        end
+        
+        def username
+          name
+        end
+        
+        def user
+          name
         end
         
         def server_name
@@ -129,6 +165,18 @@ module DpkgTools
         
         def server_aliases
           @data['server_aliases']
+        end
+        
+        def application
+          name
+        end
+        
+        def deploy_to
+          app_install_path
+        end
+        
+        def deployers_ssh_keys_dir
+          File.join(base_path, 'config/deployers_ssh_keys')
         end
       end
     end
