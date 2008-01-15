@@ -8,7 +8,8 @@ module DpkgTools
                          {:name => 'rake-rubygem', :requirements => ['>= 0.7.3-1']},
                          {:name => 'mysql-rubygem', :requirements => ['>= 2.7-1']},
                          {:name => 'mongrel-cluster-rubygem', :requirements => ['>= 1.0.1-1']}]
-        BASE_PACKAGE_DEPS = [{:name => 'mysql-client'}, {:name => 'mysql-server'}, {:name => 'apache2'}]
+        BASE_PACKAGE_DEPS = [{:name => 'mysql-client'}, {:name => 'mysql-server'}, {:name => 'apache2'}, 
+                             {:name => 'ruby', :requirements => ['>= 1.8.2']}]
         
         class << self
           def load_package_data(base_path, filename)
