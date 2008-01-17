@@ -86,7 +86,8 @@ describe DpkgTools::Package::ControlFiles::Base, "instances" do
   
   it "should be able to tell that the existing control file is different to the one that this instance would generate" do
     @control_file.expects(:to_s).returns('new file contents')
-    @control_file.expects(:file_path).returns('/a/path/to/control_file')
+    @control_file.stubs(:file_path).returns('/a/path/to/control_file')
+    File.expects(:exist?).with('/a/path/to/control_file').returns(true)
     File.expects(:read).with('/a/path/to/control_file').returns('file contents')
     
     @control_file.needs_reset?.should be_true
@@ -94,9 +95,17 @@ describe DpkgTools::Package::ControlFiles::Base, "instances" do
   
   it "should be able to tell that the existing control file is the same as the one that this instance would generate" do
     @control_file.expects(:to_s).returns('file contents')
-    @control_file.expects(:file_path).returns('/a/path/to/control_file')
+    @control_file.stubs(:file_path).returns('/a/path/to/control_file')
+    File.expects(:exist?).with('/a/path/to/control_file').returns(true)
     File.expects(:read).with('/a/path/to/control_file').returns('file contents')
     
     @control_file.needs_reset?.should be_false
+  end
+  
+  it "should know that if a control file is missing then a reset is needed by default" do
+    @control_file.expects(:file_path).returns('/a/path/to/control_file')
+    File.expects(:exist?).with('/a/path/to/control_file').returns(false)
+    
+    @control_file.needs_reset?.should be_true
   end
 end

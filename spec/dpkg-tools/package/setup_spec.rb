@@ -83,10 +83,34 @@ describe DpkgTools::Package::Setup, "regenerating control files and maintainer s
     mock_control_file_class.expects(:new).with(@data, @config).returns(mock_control_file_class)
     mock_control_file_class.stubs(:needs_reset?).returns(true)
     mock_control_file_class.stubs(:file_path).returns('/a/path/to/control_file')
-    mock_control_file_class.expects(:write)
-    FileUtils.expects(:mv).with('/a/path/to/control_file', '/a/path/to/control_file.bak')
+    @setup.stubs(:control_file_classes).returns([mock_control_file_class])
     
-    @setup.expects(:control_file_classes).returns([mock_control_file_class])
+    mock_control_file_class.expects(:write)
+    File.expects(:exist?).with('/a/path/to/control_file').returns(true)
+    FileUtils.expects(:mv).with('/a/path/to/control_file', '/a/path/to/control_file.bak')
+    @setup.reset_control_files
+  end
+  
+  it "should not bother trying to back up a control file if the file is missing" do
+    mock_control_file_class = mock('DpkgTools::Package::ControlFile')
+    mock_control_file_class.expects(:new).with(@data, @config).returns(mock_control_file_class)
+    mock_control_file_class.stubs(:needs_reset?).returns(true)
+    mock_control_file_class.stubs(:file_path).returns('/a/path/to/control_file')
+    @setup.stubs(:control_file_classes).returns([mock_control_file_class])
+    
+    File.expects(:exist?).with('/a/path/to/control_file').returns(false)
+    mock_control_file_class.expects(:write)
+    @setup.reset_control_files
+  end
+  
+  it "should not try to regenerate a control file which doesn't need it" do
+    mock_control_file_class = mock('DpkgTools::Package::ControlFile')
+    mock_control_file_class.expects(:new).with(@data, @config).returns(mock_control_file_class)
+    mock_control_file_class.stubs(:needs_reset?).returns(false)
+    mock_control_file_class.stubs(:file_path).returns('/a/path/to/control_file')
+    @setup.stubs(:control_file_classes).returns([mock_control_file_class])
+    
+    mock_control_file_class.expects(:write).never
     @setup.reset_control_files
   end
   

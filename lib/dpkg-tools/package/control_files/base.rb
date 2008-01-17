@@ -58,6 +58,7 @@ module DpkgTools
         end
         
         def needs_reset?
+          return true unless File.exist?(file_path)
           File.read(file_path) != self.to_s
         end
       end

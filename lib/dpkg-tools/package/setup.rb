@@ -64,7 +64,7 @@ module DpkgTools
         control_file_classes.each do |klass|
           control_file = klass.new(@data, @config)
           if control_file.needs_reset?
-            FileUtils.mv(control_file.file_path, control_file.file_path + '.bak')
+            FileUtils.mv(control_file.file_path, control_file.file_path + '.bak') if File.exist?(control_file.file_path)
             control_file.write 
           end
         end
