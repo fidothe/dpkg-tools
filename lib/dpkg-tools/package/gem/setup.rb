@@ -1,16 +1,18 @@
 require 'stringio'
 require 'zlib'
 require 'rubygems/package'
-require 'rubygems/old_format'
-require 'rubygems/format'
 require 'rubygems/specification'
 require 'rubygems/remote_installer'
+
+require File.join(File.dirname(__FILE__), 'gem_format')
 
 module DpkgTools
   module Package
     module Gem
       class Setup < DpkgTools::Package::Setup
         class << self
+          include DpkgTools::Package::Gem::GemFormat
+          
           def write_gem_file(config, gem_byte_string)
             File.open(config.gem_path, 'wb') {|f| f.write(gem_byte_string)}
           end
@@ -40,12 +42,6 @@ module DpkgTools
           
           def gem_file_from_uri(uri)
             ::Gem::RemoteFetcher.fetcher.fetch_path(uri)
-          end
-          
-          def format_from_string(gem_byte_string)
-            gem_io = StringIO.new(gem_byte_string)
-            return ::Gem::OldFormat.from_io(gem_io) if gem_byte_string[0,20].include?("MD5SUM =")
-            ::Gem::Format.from_io(gem_io)
           end
           
           def gem_uri_from_spec_n_source(spec, source_uri)
@@ -121,13 +117,6 @@ module DpkgTools
         
         def fetch_gem_file
           self.class.fetch_gem_file(@source_uri + "/gems/#{@spec.full_name}.gem")
-        end
-        
-        def fetch
-          @gem_byte_string = fetch_gem_file
-          @format = ::Gem::Format.from_io(StringIO.new(@gem_byte_string))
-          @spec = @format.spec
-          self
         end
         
         def write_orig_tarball

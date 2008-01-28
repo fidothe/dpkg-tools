@@ -17,6 +17,8 @@ module DpkgTools
     module Gem
       class Builder < DpkgTools::Package::Builder
         class << self
+          include DpkgTools::Package::Gem::GemFormat
+          
           def from_file_path(gem_file_path)
             format, gem_byte_string = format_and_file_from_file_path(gem_file_path)
             data = Data.new(format, gem_byte_string)
@@ -26,8 +28,7 @@ module DpkgTools
           def format_and_file_from_file_path(gem_file_path)
             gem_file = File.open(gem_file_path, 'rb')
             gem_byte_string = gem_file.read
-            gem_file.rewind
-            format = ::Gem::Format.from_io(gem_file)
+            format = format_from_string(gem_byte_string)
             [format, gem_byte_string]
           end
         end

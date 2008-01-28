@@ -14,7 +14,7 @@ module DpkgTools
             "if defined?(DpkgTools::Package::Rails)\n" \
             "  DpkgTools::Package::Rails::BuildTasks.new do |t|\n" \
             "    t.base_path = Rake.original_dir\n" \
-            "  end\n"
+            "  end\n" \
             "end\n"
           end
         end

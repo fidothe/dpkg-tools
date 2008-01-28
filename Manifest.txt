@@ -29,6 +29,7 @@ lib/dpkg-tools/package/gem/control_files/control.rb
 lib/dpkg-tools/package/gem/control_files/copyright.rb
 lib/dpkg-tools/package/gem/control_files/rakefile.rb
 lib/dpkg-tools/package/gem/data.rb
+lib/dpkg-tools/package/gem/gem_format.rb
 lib/dpkg-tools/package/gem/rake.rb
 lib/dpkg-tools/package/gem/setup.rb
 lib/dpkg-tools/package/rails.rb
@@ -79,6 +80,7 @@ spec/dpkg-tools/package/gem/control_files/copyright_spec.rb
 spec/dpkg-tools/package/gem/control_files/rakefile_spec.rb
 spec/dpkg-tools/package/gem/control_files_spec.rb
 spec/dpkg-tools/package/gem/data_spec.rb
+spec/dpkg-tools/package/gem/gem_format_spec.rb
 spec/dpkg-tools/package/gem/rake_spec.rb
 spec/dpkg-tools/package/gem/setup_spec.rb
 spec/dpkg-tools/package/gem_spec.rb

@@ -125,7 +125,7 @@ describe DpkgTools::Package::Rails::Data, "instances" do
   end
   
   it "should provide the path to the cluster's config root in /etc" do
-    @data.conf_dir_path.should == '/etc/rails-app'
+    @data.conf_dir_path.should == '/var/lib/rails-app/current/config'
   end
   
   it "should provide the capistrano application name" do

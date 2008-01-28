@@ -11,6 +11,7 @@
 #              
 
 CONF_DIR=<%= conf_dir_path %>
+CONF_FILE=$CONF_DIR/mongrel_cluster.yml
 PID_DIR=<%= pidfile_dir_path %>
 USER=<%= username %>
 
@@ -19,8 +20,8 @@ RETVAL=0
 # Gracefully exit if the controller is missing.
 which mongrel_cluster_ctl >/dev/null || exit 0
 
-# Go no further if config directory is missing.
-[ -d "$CONF_DIR" ] || exit 0
+# Go no further if config file is missing.
+[ -f "$CONF_DIR/mongrel_cluster.yml" ] || exit 0
 
 case "$1" in
     start)
@@ -28,19 +29,19 @@ case "$1" in
       mkdir -p $PID_DIR
       chown $USER:$USER $PID_DIR
 
-      mongrel_cluster_ctl start -c $CONF_DIR
+      mongrel_rails cluster::start -C $CONF_FILE
       RETVAL=$?
   ;;
     stop)
-      mongrel_cluster_ctl stop -c $CONF_DIR
+      mongrel_rails cluster::stop -C $CONF_FILE
       RETVAL=$?
   ;;
     restart)
-      mongrel_cluster_ctl restart -c $CONF_DIR
+      mongrel_rails cluster::restart -C $CONF_FILE
       RETVAL=$?
   ;;
     status)
-      mongrel_cluster_ctl status -c $CONF_DIR
+      mongrel_rails cluster::status -C $CONF_FILE
       RETVAL=$?
   ;;
     *)

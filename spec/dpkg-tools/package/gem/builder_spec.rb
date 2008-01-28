@@ -4,9 +4,8 @@ describe DpkgTools::Package::Gem::Builder do
   it "should be able to grab the bytes of a gem file and extract a Gem::Format" do
     mock_file = mock('mock File')
     mock_file.expects(:read).returns('gem byte string')
-    mock_file.expects(:rewind)
     File.expects(:open).with('path/to/file.gem', 'rb').returns(mock_file)
-    Gem::Format.expects(:from_io).with(mock_file)
+    DpkgTools::Package::Gem::Builder.expects(:format_from_string).with('gem byte string')
     DpkgTools::Package::Gem::Builder.format_and_file_from_file_path('path/to/file.gem')
   end
   

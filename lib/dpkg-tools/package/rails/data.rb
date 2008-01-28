@@ -137,7 +137,7 @@ module DpkgTools
         end
         
         def conf_dir_path
-          "/etc/#{name}"
+          "#{app_install_path}/current/config"
         end
         
         def init_script_path
