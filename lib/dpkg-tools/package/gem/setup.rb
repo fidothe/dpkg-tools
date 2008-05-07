@@ -2,7 +2,7 @@ require 'stringio'
 require 'zlib'
 require 'rubygems/package'
 require 'rubygems/specification'
-require 'rubygems/remote_installer'
+require 'rubygems/remote_fetcher'
 
 require File.join(File.dirname(__FILE__), 'gem_format')
 
@@ -60,7 +60,7 @@ module DpkgTools
           
           def from_spec_and_source(spec, source)
             gem_byte_string = gem_file_from_uri(gem_uri_from_spec_n_source(spec, source))
-            self.new(Gem::Data.new(format_from_string(gem_byte_string), gem_byte_string))
+            self.new(DpkgTools::Package::Gem::Data.new(format_from_string(gem_byte_string), gem_byte_string))
           end
           
           def from_spec_and_source_via_cache(spec, source)
@@ -79,7 +79,7 @@ module DpkgTools
           
           def from_path(gem_path)
             format, gem_byte_string = format_and_file_from_path(gem_path)
-            self.new(Gem::Data.new(format, gem_byte_string))
+            self.new(DpkgTools::Package::Gem::Data.new(format, gem_byte_string))
           end
           
           def write_orig_tarball(config, gem_byte_string)

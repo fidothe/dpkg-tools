@@ -1,6 +1,65 @@
 module DpkgTools
   module Package
+    class DebYAMLParseError < StandardError; end
+    
     class Data
+      module YamlConfigHelpers
+        # Should be overridden by subclasses to return a list of base (i.e. always required, 
+        # don't need to be specified) gem dependencies. Should return an array of hashes 
+        # of the form {:name => 'rails-rubygem', :requirements => ['>= 1.2.5-1']}
+        def base_gem_deps
+          []
+        end
+        
+        # Should be overridden by subclasses to return a list of base (i.e. always required, 
+        # don't need to be specified) dpkg package dependencies. Should return an array of hashes 
+        # of the form {:name => 'mysql-server', :requirements => ['>= 1.2.5-1']}
+        def base_package_deps
+          []
+        end
+        
+        def package_data_file_path(base_path, filename)
+          File.join(base_path, filename)
+        end
+        
+        def load_package_data(base_path, filename)
+          file_path = package_data_file_path(base_path, filename)
+          YAML.load_file(file_path) if File.exist?(file_path)
+        end
+        
+        def process_dependencies(data)
+          all_deps = base_gem_deps + base_package_deps
+          if data.has_key?('dependencies') && !data['dependencies'].empty?
+            raise DebYAMLParseError, "dependencies: is not a collection of items!" unless data['dependencies'].kind_of?(Hash)
+            all_deps += process_dependencies_by_type(data['dependencies'], 'gem', 'rubygem') {|req| "#{req}-1"}
+            all_deps += process_dependencies_by_type(data['dependencies'], 'package')
+          end
+          all_deps
+        end
+        
+        def process_dependencies_by_type(dependencies, dependency_type, suffix = nil)
+          processed_dependencies = []
+          if dependencies.has_key?(dependency_type)
+            unless dependencies[dependency_type].kind_of?(Array) || dependencies[dependency_type].nil?
+              raise DebYAMLParseError, "dependencies: #{dependency_type}: is not a list of items!"
+            end
+            unless dependencies[dependency_type].nil?
+              dependencies[dependency_type].each do |dependency|
+                name = dependency.kind_of?(Hash) ? dependency.keys.first : dependency
+                requirements = dependency.kind_of?(Hash) ? dependency.values.first : nil
+                unless requirements.kind_of?(Array) || requirements.kind_of?(String) || requirements.nil?
+                  raise DebYAMLParseError, "The #{dependency_type} dependency #{name}'s version requirements MUST be either a list of items, or a single item!"
+                end
+                requirements = [requirements] if requirements.kind_of?(String)
+                requirements.collect! { |req| yield(req) } if block_given?
+                processed_dependencies << {:name => "#{name}#{"-"+ suffix unless suffix.nil?}", :requirements => requirements}
+              end
+            end
+          end
+          processed_dependencies
+        end
+      end
+      
       class << self
         def resources_dirname
           'data'

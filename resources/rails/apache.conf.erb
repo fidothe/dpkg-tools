@@ -1,15 +1,15 @@
 <Proxy balancer://mongrel_cluster>
-  <% mongrel_ports.each do |port| -%>
+<% mongrel_ports.each do |port| -%>
   BalancerMember http://127.0.0.1:<%= port %>
-  <% end -%>
+<% end -%>
 </Proxy>
 
-<VirtualHost *:80>
+<VirtualHost *>
   ServerAdmin webskivvy@reprocessed.org
   ServerName <%= server_name %>
-  <% server_aliases.each do |server_alias| -%>
+<% server_aliases.each do |server_alias| -%>
   ServerAlias <%= server_alias %>
-  <% end -%>
+<% end -%>
   
   ProxyPass / balancer://mongrel_cluster/
   ProxyPassReverse / balancer://mongrel_cluster/

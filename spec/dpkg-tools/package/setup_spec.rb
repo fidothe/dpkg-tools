@@ -1,12 +1,123 @@
 require File.dirname(__FILE__) + '/../../spec_helper'
 
-describe DpkgTools::Package::Setup, "bootstrapping" do
-  it "should respond to needs_bootstrapping?" do
-    DpkgTools::Package::Setup.needs_bootstrapping?('base_path').should be_false
+describe DpkgTools::Package::Setup do
+  describe "bootstrapping" do
+    it "should report that it does NOT need bootstrapping if deb.yml is present" do
+      DpkgTools::Package::Setup.expects(:bootstrap_file_path).with('base_path', 'deb.yml').returns('base_path/deb.yml')
+      DpkgTools::Package::Setup.expects(:bootstrap_files).returns('deb.yml')
+      File.expects(:file?).with('base_path/deb.yml').returns(true)
+
+      DpkgTools::Package::Setup.needs_bootstrapping?('base_path').should be_false
+    end
+    
+    it "should report that it does need bootstrapping if deb.yml is NOT present" do
+      DpkgTools::Package::Setup.expects(:bootstrap_file_path).with('base_path', 'deb.yml').returns('base_path/deb.yml')
+      DpkgTools::Package::Setup.expects(:bootstrap_files).returns('deb.yml')
+      File.expects(:file?).with('base_path/deb.yml').returns(false)
+
+      DpkgTools::Package::Setup.needs_bootstrapping?('base_path').should be_true
+    end
+    
+    it "should respond to bootstrap" do
+      DpkgTools::Package::Setup.should respond_to(:bootstrap)
+    end
+    
+    it "should provide a for-overriding bootstrap_files method" do
+      DpkgTools::Package::Setup.bootstrap_files.should == ['deb.yml']
+    end
+    
+    it "should provide a for-overriding bootstrap_file_path method" do
+      DpkgTools::Package::Setup.bootstrap_file_path('base_path', 'deb.yml').should == 'base_path/deb.yml'
+    end
+    
+    describe ".bootstrap_file support methods" do
+      it "should be able to report that a target file already exists" do
+        File.stubs(:file?).with('target/file/path').returns(true)
+        DpkgTools::Package::Setup.file_exists?('target/file/path').should be_true
+      end
+      
+      it "should be able to report that a target file does not already exist" do
+        File.stubs(:file?).with('target/file/path').returns(false)
+        DpkgTools::Package::Setup.file_exists?('target/file/path').should be_false
+      end
+      
+      it "should be able to move a target file out of the way by adding a .bak suffix" do
+        FileUtils.expects(:mv).with('target/file/path', 'target/file/path.bak')
+        DpkgTools::Package::Setup.move_original_aside('target/file/path')
+      end
+      
+      it "should be able to copy a bootstrap file across to a target file path" do
+        FileUtils.expects(:cp).with('source/file/path', 'target/file/path.bak')
+        DpkgTools::Package::Setup.copy_bootstrap_file_across('source/file/path', 'target/file/path.bak')
+      end
+    end
+    
+    describe ".bootstrap_file" do
+      before(:each) do
+        DpkgTools::Package::Data.stubs(:resources_path).returns('/a/path/to/resources')
+      end
+      
+      it "should be able to create a needed files" do
+        DpkgTools::Package::Setup.expects(:bootstrap_file_path).with('base_path', 'deb.yml').returns('bootstrap_file_path')
+        File.stubs(:file?).with('bootstrap_file_path').returns(false)
+        
+        FileUtils.expects(:cp).with('/a/path/to/resources/deb.yml', 'bootstrap_file_path')
+        
+        DpkgTools::Package::Setup.bootstrap_file('base_path', 'deb.yml')
+      end
+      
+      it "should not, by default, attempt to create a file that's already there..." do
+        DpkgTools::Package::Setup.expects(:bootstrap_file_path).with('base_path', 'deb.yml').returns('bootstrap_file_path')
+        File.stubs(:file?).with('bootstrap_file_path').returns(true)
+        
+        FileUtils.expects(:cp).never
+        
+        DpkgTools::Package::Setup.bootstrap_file('base_path', 'deb.yml')
+      end
+      
+      it "should be able to backup and replace a file that's already there..." do
+        DpkgTools::Package::Setup.expects(:bootstrap_file_path).with('base_path', 'deb.yml').returns('bootstrap_file_path')
+        File.stubs(:file?).with('bootstrap_file_path').returns(true)
+        
+        FileUtils.expects(:mv).with('bootstrap_file_path', 'bootstrap_file_path.bak')
+        FileUtils.expects(:cp).with('/a/path/to/resources/deb.yml', 'bootstrap_file_path')
+        
+        DpkgTools::Package::Setup.bootstrap_file('base_path', 'deb.yml', :backup => true)
+      end
+    end
+    
+    it ".bootstrap should copy across the files correctly" do
+      DpkgTools::Package::Setup.stubs(:bootstrap_files).returns('deb.yml')
+      DpkgTools::Package::Setup.expects(:bootstrap_file).with('base_path', 'deb.yml')
+      
+      DpkgTools::Package::Setup.bootstrap('base_path')
+    end
   end
   
-  it "should respond to bootstrap" do
-    DpkgTools::Package::Setup.should respond_to(:bootstrap)
+  describe ".from_path support methods" do
+    it "should provide a for-overriding method to return the Package::Data subclass to use" do
+      DpkgTools::Package::Setup.data_class.should == DpkgTools::Package::Data
+    end
+  end
+  
+  describe ".from_path" do
+    it "should create a DpkgTools::Package::Data instance, and feed it to .new" do
+      DpkgTools::Package::Setup.expects(:needs_bootstrapping?).with('base_path').returns(false)
+      DpkgTools::Package::Data.expects(:new).with('base_path').returns(:data)
+      DpkgTools::Package::Setup.expects(:new).with(:data, 'base_path').returns(:instance)
+                      
+      DpkgTools::Package::Setup.from_path('base_path').should == :instance
+    end
+  
+    it "should be able to bootstrap the rails app if needed" do
+      DpkgTools::Package::Setup.expects(:needs_bootstrapping?).with('base_path').returns(true)
+      DpkgTools::Package::Setup.expects(:bootstrap).with('base_path')
+                      
+      DpkgTools::Package::Data.expects(:new).with('base_path').returns(:data)
+      DpkgTools::Package::Setup.expects(:new).with(:data, 'base_path').returns(:instance)
+                      
+      DpkgTools::Package::Setup.from_path('base_path').should == :instance
+    end
   end
 end
 

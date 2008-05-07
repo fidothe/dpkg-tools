@@ -1,12 +1,14 @@
-require File.join(File.dirname(__FILE__), 'package/config')
-require File.join(File.dirname(__FILE__), 'package/data')
-require File.join(File.dirname(__FILE__), 'package/control_files')
-require File.join(File.dirname(__FILE__), 'package/fs_methods')
-require File.join(File.dirname(__FILE__), 'package/setup')
-require File.join(File.dirname(__FILE__), 'package/builder')
-require File.join(File.dirname(__FILE__), 'package/rake')
-require File.join(File.dirname(__FILE__), 'package/gem')
-require File.join(File.dirname(__FILE__), 'package/rails')
+require 'dpkg-tools/package/config'
+require 'dpkg-tools/package/data'
+require 'dpkg-tools/package/control_files'
+require 'dpkg-tools/package/fs_methods'
+require 'dpkg-tools/package/setup'
+require 'dpkg-tools/package/builder'
+require 'dpkg-tools/package/rake'
+
+require 'dpkg-tools/package/gem'
+require 'dpkg-tools/package/rails'
+require 'dpkg-tools/package/etc'
 
 module DpkgTools
   module Package

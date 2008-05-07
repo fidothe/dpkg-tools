@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/../../spec_helper'
 
 describe DpkgTools::Package::Rails, ".create_builder" do
-  it "should instantiate a Package::Gem::Data and a Package::Gem::Builder and make 'em work" do
+  it "should instantiate a Package::Rails::Data and a Package::Rails::Builder and make 'em work" do
     DpkgTools::Package::Rails::Builder.expects(:from_path).with('/a/path/to/rails-app').returns(:builder)
     
     DpkgTools::Package::Rails.create_builder('/a/path/to/rails-app').should == :builder

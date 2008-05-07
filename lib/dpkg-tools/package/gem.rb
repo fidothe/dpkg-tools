@@ -1,8 +1,8 @@
-require File.join(File.dirname(__FILE__), 'gem/data')
-require File.join(File.dirname(__FILE__), 'gem/setup')
-require File.join(File.dirname(__FILE__), 'gem/control_files')
-require File.join(File.dirname(__FILE__), 'gem/builder')
-require File.join(File.dirname(__FILE__), 'gem/rake')
+require 'dpkg-tools/package/gem/data'
+require 'dpkg-tools/package/gem/setup'
+require 'dpkg-tools/package/gem/control_files'
+require 'dpkg-tools/package/gem/builder'
+require 'dpkg-tools/package/gem/rake'
 
 module DpkgTools
   module Package

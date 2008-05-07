@@ -1,7 +1,6 @@
-require File.dirname(__FILE__) + '/control_files/control'
-require File.dirname(__FILE__) + '/control_files/copyright'
-require File.dirname(__FILE__) + '/control_files/changelog'
-require File.dirname(__FILE__) + '/control_files/rakefile'
+require 'dpkg-tools/package/rails/control_files/copyright'
+require 'dpkg-tools/package/rails/control_files/changelog'
+require 'dpkg-tools/package/rails/control_files/rakefile'
 
 module DpkgTools
   module Package
@@ -11,7 +10,7 @@ module DpkgTools
           def classes
             [
               DpkgTools::Package::Rails::ControlFiles::Changelog,
-              DpkgTools::Package::Rails::ControlFiles::Control,
+              DpkgTools::Package::ControlFiles::Control,
               DpkgTools::Package::Rails::ControlFiles::Copyright,
               DpkgTools::Package::Rails::ControlFiles::Rakefile,
               DpkgTools::Package::ControlFiles::Rules

@@ -8,17 +8,70 @@ module DpkgTools
         # directory at base_path needs to be bootstrapped in order
         # for a DpkgTools::Package::Data subclass to be instantiated
         def needs_bootstrapping?(base_path)
+          bootstrap_files.each do |filename|
+            return true unless File.file?(bootstrap_file_path(base_path, filename))
+          end
           false
         end
         
+        # Should be overridden by subclasses to return the files
+        # that are expected to be present under base_path to
+        # support a DpkgTools::Package::Data subclass being instantiated
+        def bootstrap_files
+          ['deb.yml']
+        end
+        
+        # Shoule be overridden by subclasses and return the dir under 
+        # base_path where files required by the bootstrapping process
+        # should live (can be base_path)
+        def bootstrap_file_path(base_path, filename)
+          "#{base_path}/#{filename}"
+        end
+        
         # Should be overridden by subclasses to bootstrap the 
-        # directory at base_path needs to allow it to support
-        # a DpkgTools::Package::Data subclass being instantiated
+        # directory at base_path, to put it in a state that would 
+        # support a DpkgTools::Package::Data subclass being instantiated
         def bootstrap(base_path)
-          
+          bootstrap_files.each do |filename|
+            bootstrap_file(base_path, filename)
+          end
+        end
+        
+        def file_exists?(file_path)
+          File.file?(file_path)
+        end
+        
+        def move_original_aside(file_path)
+          FileUtils.mv(file_path, file_path + '.bak') 
+        end
+        
+        def copy_bootstrap_file_across(src_file, target_file)
+          FileUtils.cp(src_file, target_file)
+        end
+        
+        def bootstrap_file(base_path, filename, options = {})
+          target_file = bootstrap_file_path(base_path, filename)
+          src_file = File.join(Data.resources_path, filename)
+          file_exists = File.file?(target_file)
+          if file_exists && options[:backup]
+            move_original_aside(target_file)
+            file_exists = false
+          end
+          copy_bootstrap_file_across(src_file, target_file) unless file_exists
+        end
+        
+        # Should be overridden by subclasses to return the specific 
+        # DpkgTools::Package::Data subclass they want to use
+        def data_class
+          DpkgTools::Package::Data
+        end
+        
+        def from_path(base_path)
+          self.bootstrap(base_path) if self.needs_bootstrapping?(base_path)
+          self.new(self.data_class.new(base_path), base_path)
         end
       end
-      
+          
       def initialize(data, options = {})
         @data = data
         @config = DpkgTools::Package::Config.new(data.name, data.version, config_options)

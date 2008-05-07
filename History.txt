@@ -1,10 +1,12 @@
 == 0.2.20 2008-01-18
 
-* Tweaks to mongrel startup script
+* Tweaks to mongrel startup script and corresponding data 
+  values in DpkgTools::Package::Rails::Data
 
 == 0.2.19 2008-01-17
 
-* refactor Gem::Format creation so that Package::Builder can cope with old formats 
+* refactor Gem::Format creation so that Package::Builder can 
+  cope with old formats 
 
 == 0.2.18 2008-01-15
 
@@ -12,16 +14,20 @@
 
 == 0.2.17 2008-01-15
 
-* Added the ruby .deb to the base deps for rails packages (otherwise only ruby18 is there)
+* Added the ruby .deb to the base deps for rails packages 
+  (otherwise only ruby18 is there)
 
 == 0.2.16 2008-01-07
 
-* Fixed a problem where directories were treated as files in dpkg-rails
+* Fixed a problem where directories were treated as files 
+  in dpkg-rails
 
 == 0.2.15 2007-12-14
 
-* Modified maintainer scripts for controlled modification of sudoers
-* Modified Rails setup tasks so they can be re-run on an app from Rake
+* Modified maintainer scripts for controlled modification of 
+  sudoers
+* Modified Rails setup tasks so they can be re-run on an app 
+  from Rake
 
 == 0.2.14 2007-12-04
 
@@ -41,8 +47,10 @@
 == 0.2.11 2007-12-01
 
 * Refactored out the Rake build tasks stuff to DRY it up a bit
-* Made certain things happen more in accordance with debian policy stuff (Gem gets installed on debian/rules build)
-* -arch and -indep rake tasks get invoked from binary and build properly (i.e. only one)
+* Made certain things happen more in accordance with debian policy 
+  stuff (Gem gets installed on debian/rules build)
+* -arch and -indep rake tasks get invoked from binary and build 
+  properly (i.e. only one)
 * postinst and comrades actually have the right names now
 
 == 0.2.10 2007-12-01
@@ -56,7 +64,9 @@
 
 == 0.2.8 2007-12-01
 
-* Maintains a list of -dev packages for gems which need to compile against them and adds those to build-time dependencies as appropriate
+* Maintains a list of -dev packages for gems which need to compile 
+  against them and adds those to build-time dependencies as 
+  appropriate
 
 == 0.2.7 2007-11-25
 

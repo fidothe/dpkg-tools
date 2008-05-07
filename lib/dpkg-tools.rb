@@ -1,5 +1,5 @@
-require File.dirname(__FILE__) + '/dpkg-tools/package'
-require File.dirname(__FILE__) + '/dpkg-tools/version'
+require 'dpkg-tools/package'
+require 'dpkg-tools/version'
 
 module DpkgTools
   

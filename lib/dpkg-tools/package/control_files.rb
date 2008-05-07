@@ -1,9 +1,9 @@
-require File.dirname(__FILE__) + '/control_files/base'
-require File.dirname(__FILE__) + '/control_files/control'
-require File.dirname(__FILE__) + '/control_files/copyright'
-require File.dirname(__FILE__) + '/control_files/changelog'
-require File.dirname(__FILE__) + '/control_files/rules'
-require File.dirname(__FILE__) + '/control_files/rakefile'
+require 'dpkg-tools/package/control_files/base'
+require 'dpkg-tools/package/control_files/control'
+require 'dpkg-tools/package/control_files/copyright'
+require 'dpkg-tools/package/control_files/changelog'
+require 'dpkg-tools/package/control_files/rules'
+require 'dpkg-tools/package/control_files/rakefile'
 
 module DpkgTools
   module Package

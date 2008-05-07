@@ -1,0 +1,22 @@
+# A Debian Changelog gets generated from this list of change blocks.
+# date, version, and changes are required fields.
+# 
+# Date should contain an ISO8601/RFC3339-formatted date-time string
+#
+# Version should be the version number of the package that this change
+# applies to
+#
+# Changes is a list of changes. Each item should be a YAML string or block. 
+# (You don't need more than one item, but you do need to structure it as a 
+# list)
+# 
+# You can use rake dpkg:new_change to add a new item to the top of this file
+# it will fill in Date and Version for you.
+- date: "2008-04-16T12:00:00+00:00"
+  version: "1.0.1"
+  changes:
+    - Changes!
+    - > 
+      More changes!
+      
+      Split across several lines!

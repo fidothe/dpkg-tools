@@ -6,47 +6,20 @@ module DpkgTools
     module Rails
       class Setup < DpkgTools::Package::Setup
         class << self
-          def bootstrap_files
-            ['deb.yml']
-          end
-          
           def bootstrap_file_path(base_path, filename)
             File.join(base_path, 'config', filename)
           end
           
-          def needs_bootstrapping?(base_path)
-            bootstrap_files.each do |filename|
-              return true unless File.file?(bootstrap_file_path(base_path, filename))
-            end
-            false
-          end
-          
-          def bootstrap(base_path)
-            bootstrap_files.each do |filename|
-              bootstrap_file(base_path, filename)
-            end
-          end
-          
-          def bootstrap_file(base_path, filename, options = {})
-            target_file = bootstrap_file_path(base_path, filename)
-            src_file = File.join(DpkgTools::Package::Rails::Data.resources_path, filename)
-            file_exists = File.file?(target_file)
-            if file_exists && options[:backup]
-              FileUtils.mv(target_file, target_file + '.bak') 
-              file_exists = false
-            end
-            FileUtils.cp(src_file, target_file) unless file_exists
-          end
-          
-          def from_path(base_path)
-            self.bootstrap(base_path) if self.needs_bootstrapping?(base_path)
-            self.new(DpkgTools::Package::Rails::Data.new(base_path), base_path)
+          def data_class
+            DpkgTools::Package::Rails::Data
           end
           
           def generate_mongrel_cluster_config_hash(data, config)
             data.mongrel_cluster_config_hash.merge({'cwd' => "#{data.app_install_path}/current",
                                                     'pid_file' => "#{data.pidfile_dir_path}/mongrel.pid",
-                                                    'log_file' => 'log/mongrel.log'})
+                                                    'log_file' => 'log/mongrel.log',
+                                                    'user' => data.name,
+                                                    'group' => data.name})
           end
           
           def generate_mongrel_cluster_config(data, config)

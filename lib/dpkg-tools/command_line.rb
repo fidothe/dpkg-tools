@@ -1,5 +1,5 @@
 require 'optparse'
-require File.join(File.dirname(__FILE__), '../dpkg-tools')
+require 'dpkg-tools'
 
 module DpkgTools
   module CommandLine

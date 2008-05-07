@@ -1,18 +1,12 @@
 require File.dirname(__FILE__) + '/../../../spec_helper'
 
 describe DpkgTools::Package::Rails::Setup, ".from_path" do
-  it "should create a DpkgTools::Package::Rails::Data instance, and feed it to .new" do
-    DpkgTools::Package::Rails::Setup.expects(:needs_bootstrapping?).with('base_path').returns(false)
-    DpkgTools::Package::Rails::Data.expects(:new).with('base_path').returns(:data)
-    DpkgTools::Package::Rails::Setup.expects(:new).with(:data, 'base_path').returns(:instance)
-    
-    DpkgTools::Package::Rails::Setup.from_path('base_path').should == :instance
+  it "should return the correct class from .data_class" do
+    DpkgTools::Package::Rails::Setup.data_class.should == DpkgTools::Package::Rails::Data
   end
   
-  it "should be able to bootstrap the rails app if needed" do
-    DpkgTools::Package::Rails::Setup.expects(:needs_bootstrapping?).with('base_path').returns(true)
-    DpkgTools::Package::Rails::Setup.expects(:bootstrap).with('base_path')
-    
+  it "should create a DpkgTools::Package::Rails::Data instance, and feed it to .new" do
+    DpkgTools::Package::Rails::Setup.stubs(:needs_bootstrapping?).returns(false)
     DpkgTools::Package::Rails::Data.expects(:new).with('base_path').returns(:data)
     DpkgTools::Package::Rails::Setup.expects(:new).with(:data, 'base_path').returns(:instance)
     
@@ -32,51 +26,6 @@ describe DpkgTools::Package::Rails::Setup, "bootstrapping" do
   
   it "should be able to report which files are needed for bootstrapping" do
     DpkgTools::Package::Rails::Setup.bootstrap_files.should == ['deb.yml']
-  end
-  
-  it ".bootstrap_file should be able to create a needed files" do
-    File.stubs(:file?).with('base_path/config/deb.yml').returns(false)
-    
-    FileUtils.expects(:cp).with('/a/path/to/resources/deb.yml', 'base_path/config/deb.yml')
-    
-    DpkgTools::Package::Rails::Setup.bootstrap_file('base_path', 'deb.yml')
-  end
-  
-  it ".bootstrap_file should not, by default, attempt to create a file that's already there..." do
-    File.stubs(:file?).with('base_path/config/deb.yml').returns(true)
-    
-    FileUtils.expects(:cp).never
-    
-    DpkgTools::Package::Rails::Setup.bootstrap_file('base_path', 'deb.yml')
-  end
-  
-  it ".bootstrap_file should be able to backup and replace a file that's already there..." do
-    File.stubs(:file?).with('base_path/config/deb.yml').returns(true)
-    
-    FileUtils.expects(:mv).with('base_path/config/deb.yml', 'base_path/config/deb.yml.bak')
-    FileUtils.expects(:cp).with('/a/path/to/resources/deb.yml', 'base_path/config/deb.yml')
-    
-    DpkgTools::Package::Rails::Setup.bootstrap_file('base_path', 'deb.yml', :backup => true)
-  end
-  
-  it ".bootstrap should copy across the files correctly" do
-    DpkgTools::Package::Rails::Setup.expects(:bootstrap_file).with('base_path', 'deb.yml')
-    
-    DpkgTools::Package::Rails::Setup.bootstrap('base_path')
-  end
-end
-
-describe DpkgTools::Package::Rails::Setup, ".needs_bootstrapping?" do
-  it ".needs_bootstrapping? should return false if all files are there" do
-    File.stubs(:file?).with('base_path/config/deb.yml').returns(true)
-    
-    DpkgTools::Package::Rails::Setup.needs_bootstrapping?('base_path').should be(false)
-  end
-  
-  it ".needs_bootstrapping? should return true if one file is missing" do
-    File.stubs(:file?).with('base_path/config/deb.yml').returns(false)
-    
-    DpkgTools::Package::Rails::Setup.needs_bootstrapping?('base_path').should be(true)
   end
 end
 
@@ -150,7 +99,9 @@ describe DpkgTools::Package::Rails::Setup do
                  'servers' => 3,
                  'pid_file' => '/var/run/name/mongrel.pid',
                  'cwd' => '/var/lib/name/current',
-                 'log_file' => 'log/mongrel.log'}
+                 'log_file' => 'log/mongrel.log',
+                 'user' => 'name',
+                 'group' => 'name'}
   end
   
   it "should be able to write the config/mongrel_cluster.yml file" do
