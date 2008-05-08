@@ -24,4 +24,28 @@ describe DpkgTools::Package::Etc::Setup do
       DpkgTools::Package::Etc::Setup.from_path('base_path').should == :instance
     end
   end
+  
+  describe DpkgTools::Package::Etc::Setup, "#prepare_package" do
+    before(:each) do
+      @data = stub("stub DpkgTools::Package::Etc::Data", :name => 'hello', :version => '1')
+      @config = DpkgTools::Package::Config.new('hello', '1', {:base_path => 'base_path'})
+      DpkgTools::Package::Config.expects(:new).with('hello', '1', {}).returns(@config)
+      
+      @setup = DpkgTools::Package::Etc::Setup.new(@data)
+    end
+    
+    it "should create an etc/ dir if it isn't already there" do
+      File.stubs(:directory?).with('base_path/etc').returns(false)
+      Dir.expects(:mkdir).with('base_path/etc')
+      
+      @setup.prepare_package
+    end
+    
+    it "should not create the etc/ dir if it is there" do
+      File.stubs(:directory?).with('base_path/etc').returns(true)
+      Dir.expects(:mkdir).with('base_path/etc').never
+      
+      @setup.prepare_package
+    end
+  end
 end

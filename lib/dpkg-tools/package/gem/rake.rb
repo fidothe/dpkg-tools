@@ -1,6 +1,3 @@
-require 'rake'
-require 'rake/tasklib'
-
 module DpkgTools
   module Package
     module Gem

@@ -11,6 +11,10 @@ module DpkgTools
             CopyrightFormatter
           end
         end
+        
+        def license_file
+          data.license
+        end
       end
       
       class CopyrightFormatter < DpkgTools::Package::ControlFiles::BaseFormatter

@@ -1,8 +1,8 @@
 require 'dpkg-tools/package/etc/data'
 require 'dpkg-tools/package/etc/setup'
-# require 'dpkg-tools/package/etc/builder'
+require 'dpkg-tools/package/etc/builder'
 require 'dpkg-tools/package/etc/control_files'
-# require 'dpkg-tools/package/etc/rake'
+require 'dpkg-tools/package/etc/rake'
 
 module DpkgTools
   module Package

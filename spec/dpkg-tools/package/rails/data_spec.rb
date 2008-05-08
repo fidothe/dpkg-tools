@@ -8,6 +8,22 @@ describe DpkgTools::Package::Rails::Data, ".load_package_data" do
   end
 end
 
+describe DpkgTools::Package::Rails::Data, "base dependencies" do
+  it "should return a sensible list of base gem dependencies" do
+    DpkgTools::Package::Rails::Data.base_gem_deps.
+      should == [{:name => 'rails-rubygem', :requirements => ['>= 1.2.5-1']},
+                 {:name => 'rake-rubygem', :requirements => ['>= 0.7.3-1']},
+                 {:name => 'mysql-rubygem', :requirements => ['>= 2.7-1']},
+                 {:name => 'mongrel-cluster-rubygem', :requirements => ['>= 1.0.1-1']}]
+  end
+  
+  it "should return a sensible list of base package dependencies" do
+    DpkgTools::Package::Rails::Data.base_deps.
+      should == [{:name => 'mysql-client'}, {:name => 'mysql-server'}, {:name => 'apache2'}, 
+                 {:name => 'ruby', :requirements => ['>= 1.8.2']}]    
+  end
+end
+
 describe DpkgTools::Package::Rails::Data, ".new" do
   it "should raise an error without any arguments" do
     lambda { DpkgTools::Package::Gem::Data.new }.should raise_error
@@ -160,76 +176,3 @@ describe DpkgTools::Package::Rails::Data, "instances" do
     @data.mongrel_cluster_config_hash.should == @mongrel_cluster_config_data
   end
 end
-
-describe DpkgTools::Package::Rails::Data, ".process_dependencies" do
-  it "should report the base deps if the YAML says no deps at all" do
-    fixture_data = {'name' => 'rails-app', 'version' => '1.0.8', 'license' => '(c) Matt 4evah'}
-    
-    DpkgTools::Package::Rails::Data.process_dependencies(fixture_data).
-      should == DpkgTools::Package::Rails::Data::BASE_GEM_DEPS \
-        + DpkgTools::Package::Rails::Data::BASE_PACKAGE_DEPS
-  end
-  
-  it "should report base deps plus gem deps if they're specified" do
-    fixture_data = {'dependencies' => {'gem' => ['rspec' => ['>= 1.0.8']]}}
-    
-    DpkgTools::Package::Rails::Data.process_dependencies(fixture_data).
-      should == DpkgTools::Package::Rails::Data::BASE_GEM_DEPS \
-        + DpkgTools::Package::Rails::Data::BASE_PACKAGE_DEPS \
-        + [{:name => 'rspec-rubygem', :requirements => ['>= 1.0.8-1']}]
-  end
-  
-  it "should report base deps plus package deps if they're specified" do
-    fixture_data = {'dependencies' => {'package' => ['rspec' => ['>= 1.0.8']]}}
-    
-    DpkgTools::Package::Rails::Data.process_dependencies(fixture_data).
-      should == DpkgTools::Package::Rails::Data::BASE_GEM_DEPS \
-        + DpkgTools::Package::Rails::Data::BASE_PACKAGE_DEPS \
-        + [{:name => 'rspec', :requirements => ['>= 1.0.8']}]
-  end
-  
-  it "should be able to report base deps plus any other deps..." do
-    fixture_data = {'dependencies' => {'gem' => ['rspec' => ['>= 1.0.8']],
-                    'package' => ['rspec' => ['>= 1.0.8']]}}
-    
-    DpkgTools::Package::Rails::Data.process_dependencies(fixture_data).
-      should == DpkgTools::Package::Rails::Data::BASE_GEM_DEPS \
-        + DpkgTools::Package::Rails::Data::BASE_PACKAGE_DEPS \
-        + [{:name => 'rspec-rubygem', :requirements => ['>= 1.0.8-1']}, 
-           {:name => 'rspec', :requirements => ['>= 1.0.8']}]
-  end
-  
-  it "should be able to cope with deps whose version requirements are specified by a single string" do
-    fixture_data = {'dependencies' => {'gem' => ['rspec' => '>= 1.0.8']}}
-    
-    DpkgTools::Package::Rails::Data.process_dependencies(fixture_data).
-      should == DpkgTools::Package::Rails::Data::BASE_GEM_DEPS \
-        + DpkgTools::Package::Rails::Data::BASE_PACKAGE_DEPS \
-        + [{:name => 'rspec-rubygem', :requirements => ['>= 1.0.8-1']}]
-  end
-  
-  it "should raise an appropriate error if the dependencies collection is not a Hash (YAML collection)" do
-    fixture_data = {'dependencies' => 'string'}
-    
-    lambda { DpkgTools::Package::Rails::Data.process_dependencies(fixture_data) }.
-      should raise_error(DpkgTools::Package::Rails::DebYAMLParseError)
-  end
-end
-
-describe DpkgTools::Package::Rails::Data, ".process_dependencies_by_type" do
-  it "should raise an appropriate error if the dependencies gem sequence isn't a sequence" do
-    fixture_data = {'gem' => 'string'}
-    
-    lambda { DpkgTools::Package::Rails::Data.process_dependencies_by_type(fixture_data, 'gem') }.
-      should raise_error(DpkgTools::Package::Rails::DebYAMLParseError)
-  end
-  
-  it "should raise an appropriate error if one of package dependencies version requirements list isn't a list or a string..." do
-    fixture_data = {'package' => ['rspec' => {'>= 1.0.8' => 'blah'}]}
-    
-    lambda { DpkgTools::Package::Rails::Data.process_dependencies_by_type(fixture_data, 'package') }.
-      should raise_error(DpkgTools::Package::Rails::DebYAMLParseError)
-  end
-end
-
-

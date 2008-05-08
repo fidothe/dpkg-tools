@@ -5,7 +5,7 @@ describe DpkgTools::Package::Rails::ControlFiles do
     DpkgTools::Package::Rails::ControlFiles.classes.
       should == [DpkgTools::Package::Rails::ControlFiles::Changelog,
                  DpkgTools::Package::ControlFiles::Control,
-                 DpkgTools::Package::Rails::ControlFiles::Copyright,
+                 DpkgTools::Package::ControlFiles::Copyright,
                  DpkgTools::Package::Rails::ControlFiles::Rakefile,
                  DpkgTools::Package::ControlFiles::Rules]
   end

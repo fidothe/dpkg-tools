@@ -1,6 +1,6 @@
 module DpkgTools
   module Package
-    module Rails
+    module Etc
       class BuildTasks < DpkgTools::Package::BuildTasks
         attr_accessor :base_path
         
@@ -9,11 +9,11 @@ module DpkgTools
         end
         
         def create_builder
-          DpkgTools::Package::Rails.create_builder(@base_path)
+          DpkgTools::Package::Etc.create_builder(@base_path)
         end
         
         def create_setup
-          DpkgTools::Package::Rails.create_setup(@base_path)
+          DpkgTools::Package::Etc.create_setup(@base_path)
         end
         
         def define_tasks
@@ -23,15 +23,6 @@ module DpkgTools
           
           task "binary-indep" do
             create_builder.binary_package
-          end
-          
-          namespace :dpkg do
-            desc <<-EOD
-              Regenerate the config/mongre_cluster.yml file.
-            EOD
-            task :mongrel_cluster do
-              create_setup.generate_mongrel_cluster_config
-            end
           end
         end
       end

@@ -4,7 +4,7 @@ describe DpkgTools::Package::Etc, ".create_builder" do
   it "should instantiate a Package::Etc::Data and a Package::Etc::Builder and make 'em work" do
     DpkgTools::Package::Etc::Builder.expects(:from_path).with('/path/to/package').returns(:builder)
     
-    DpkgTools::Package::Etc.create_builder('/a/path/to/rails-app').should == :builder
+    DpkgTools::Package::Etc.create_builder('/path/to/package').should == :builder
   end
 end
 

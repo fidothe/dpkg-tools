@@ -9,6 +9,13 @@ describe DpkgTools::Package::ControlFiles::Copyright, "generating the debian/con
     DpkgTools::Package::ControlFiles::Copyright.formatter_class.
       should == DpkgTools::Package::ControlFiles::CopyrightFormatter
   end
+  
+  it "should be able to locate and return the app's license" do
+    stub_data = stub('stub DpkgTools::Package::Data', :license => "(c) Matt Patterson 2007, All rights reserved")
+    metadata = DpkgTools::Package::ControlFiles::Copyright.new(stub_data, :config)
+    
+    metadata.license_file.should == "(c) Matt Patterson 2007, All rights reserved"
+  end
 end
 
 describe DpkgTools::Package::ControlFiles::CopyrightFormatter, "Can generate a debian/copyright file" do

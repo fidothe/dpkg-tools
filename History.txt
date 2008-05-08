@@ -1,3 +1,7 @@
+== 0.3.0 2008-05-08
+
+* Plenty tweaks to Rails startup scripts, added dpkg-etc for config. package generation
+
 == 0.2.20 2008-01-18
 
 * Tweaks to mongrel startup script and corresponding data 

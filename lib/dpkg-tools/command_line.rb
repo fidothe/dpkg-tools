@@ -40,6 +40,44 @@ module DpkgTools
       end
     end
     
+    module Etc
+      class << self
+        def run(args, err, out)
+          options = {}
+          opt_parser = OptionParser.new do |opts|
+            opts.banner = "Usage: dpkg-etc [options] PATH_TO_CONF_PACKAGE"
+            
+            opts.separator ""
+            opts.separator "Common options:"
+            
+            opts.on_tail("-h", "--help", "Show this message") do
+              err.puts opts
+              exit
+            end
+            
+            # Another typical switch to print the version.
+            opts.on_tail("--version", "Show version") do
+              err.puts DpkgTools::Version.STRING
+              exit
+            end
+          end
+          opt_parser.parse!(args)
+          
+          begin
+            package_path = args.first
+            package_parent_path = File.dirname(package_path)
+            raise ArgumentError, "You must supply a valid path to a package - #{package_parent_path} doesn't exist!" unless File.exist?(package_parent_path)
+            
+            DpkgTools::Package::Etc.setup_from_path(package_path)
+          rescue ArgumentError => e
+            err.puts opt_parser
+            err.puts ""
+            err.puts e
+          end
+        end
+      end
+    end
+    
     module Gem
       class << self
         def run(args, err, out)

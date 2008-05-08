@@ -3,13 +3,6 @@ require 'rubygems'
 
 require 'fileutils'
 
-# module GemBindir
-#   class << self
-#   def bindir(install_dir = nil)
-#     
-#   end
-# end
-
 module DpkgTools
   module Package
     module Rails

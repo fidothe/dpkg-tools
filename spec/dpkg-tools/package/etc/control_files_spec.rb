@@ -6,7 +6,7 @@ describe DpkgTools::Package::Etc::ControlFiles do
       should == [DpkgTools::Package::Etc::ControlFiles::Changelog,
                  DpkgTools::Package::ControlFiles::Control,
                  DpkgTools::Package::ControlFiles::Copyright,
-                 DpkgTools::Package::ControlFiles::Rakefile,
+                 DpkgTools::Package::Etc::ControlFiles::Rakefile,
                  DpkgTools::Package::ControlFiles::Rules]
   end
 end
