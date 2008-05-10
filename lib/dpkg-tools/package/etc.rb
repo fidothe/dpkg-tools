@@ -17,6 +17,7 @@ module DpkgTools
         end
         
         def setup_from_path(path_to_app)
+          Dir.mkdir(path_to_app) unless File.directory?(path_to_app)
           create_setup(path_to_app).create_structure
         end
       end

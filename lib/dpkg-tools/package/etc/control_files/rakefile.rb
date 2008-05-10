@@ -8,7 +8,7 @@ module DpkgTools
             "require 'dpkg-tools'\n" \
             "\n" \
             "DpkgTools::Package::Etc::BuildTasks.new do |t|\n" \
-            "  t.root_path = File.dirname(Rake.original_dir)\n" \
+            "  t.base_path = Rake.original_dir\n" \
             "end\n"
           end
         end

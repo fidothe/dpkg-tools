@@ -9,8 +9,20 @@ describe DpkgTools::Package::Etc, ".create_builder" do
 end
 
 describe DpkgTools::Package::Etc, ".setup_from_path" do
-  it "should be able to create package structure from a path to a gem file" do
+  it "should be able to create package structure from a path to a not-yet-extant conf package dir" do
     mock_setup = mock('mock DpkgTools::Package::Etc::Setup')
+    File.stubs(:directory?).with('/path/to/package').returns(false)
+    Dir.expects(:mkdir).with('/path/to/package')
+    DpkgTools::Package::Etc::Setup.expects(:from_path).with('/path/to/package').returns(mock_setup)
+    mock_setup.expects(:create_structure)
+    
+    DpkgTools::Package::Etc.setup_from_path('/path/to/package')
+  end
+  
+  it "should be able to create package structure from a path to a dir that exists" do
+    mock_setup = mock('mock DpkgTools::Package::Etc::Setup')
+    File.stubs(:directory?).with('/path/to/package').returns(true)
+    Dir.expects(:mkdir).with('/path/to/package').never
     DpkgTools::Package::Etc::Setup.expects(:from_path).with('/path/to/package').returns(mock_setup)
     mock_setup.expects(:create_structure)
     

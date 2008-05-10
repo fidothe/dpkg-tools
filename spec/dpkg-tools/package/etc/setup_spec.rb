@@ -25,27 +25,38 @@ describe DpkgTools::Package::Etc::Setup do
     end
   end
   
-  describe DpkgTools::Package::Etc::Setup, "#prepare_package" do
+  describe DpkgTools::Package::Etc::Setup, "instances" do
     before(:each) do
-      @data = stub("stub DpkgTools::Package::Etc::Data", :name => 'hello', :version => '1')
+      @data = stub("stub DpkgTools::Package::Etc::Data", :name => 'hello', :version => '1', :base_path => 'base_path')
       @config = DpkgTools::Package::Config.new('hello', '1', {:base_path => 'base_path'})
-      DpkgTools::Package::Config.expects(:new).with('hello', '1', {}).returns(@config)
+      DpkgTools::Package::Config.expects(:new).with('hello', '1', {:base_path => 'base_path'}).returns(@config)
       
       @setup = DpkgTools::Package::Etc::Setup.new(@data)
     end
     
-    it "should create an etc/ dir if it isn't already there" do
-      File.stubs(:directory?).with('base_path/etc').returns(false)
-      Dir.expects(:mkdir).with('base_path/etc')
-      
-      @setup.prepare_package
+    it "should provide access to the correct options for making a new DpkgTools::Package::Config" do
+      @setup.config_options.should == {:base_path => 'base_path'}
+    end
+
+    it "should return the right thing for #control_file_classes" do
+      DpkgTools::Package::Etc::ControlFiles.expects(:classes).returns(:classes)
+      @setup.control_file_classes.should == :classes
     end
     
-    it "should not create the etc/ dir if it is there" do
-      File.stubs(:directory?).with('base_path/etc').returns(true)
-      Dir.expects(:mkdir).with('base_path/etc').never
-      
-      @setup.prepare_package
+    describe "#prepare_package" do
+      it "should create an etc/ dir if it isn't already there" do
+        File.stubs(:directory?).with('base_path/etc').returns(false)
+        Dir.expects(:mkdir).with('base_path/etc')
+
+        @setup.prepare_package
+      end
+
+      it "should not create the etc/ dir if it is there" do
+        File.stubs(:directory?).with('base_path/etc').returns(true)
+        Dir.expects(:mkdir).with('base_path/etc').never
+
+        @setup.prepare_package
+      end
     end
   end
 end

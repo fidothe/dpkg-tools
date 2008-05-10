@@ -51,7 +51,7 @@ module DpkgTools
         
         def bootstrap_file(base_path, filename, options = {})
           target_file = bootstrap_file_path(base_path, filename)
-          src_file = File.join(Data.resources_path, filename)
+          src_file = File.join(data_class.resources_path, filename)
           file_exists = File.file?(target_file)
           if file_exists && options[:backup]
             move_original_aside(target_file)

@@ -54,7 +54,9 @@ describe DpkgTools::Package::Setup do
     
     describe ".bootstrap_file" do
       before(:each) do
-        DpkgTools::Package::Data.stubs(:resources_path).returns('/a/path/to/resources')
+        mock_data_class = mock('DpkgTools::Package::Data')
+        mock_data_class.stubs(:resources_path).returns('/a/path/to/resources')
+        DpkgTools::Package::Setup.stubs(:data_class).returns(mock_data_class)
       end
       
       it "should be able to create a needed files" do
