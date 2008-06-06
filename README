@@ -1,1 +1,13 @@
-README
+= dpkg-tools: less-painful OS package building
+
+dpkg-tools is a set of tools which aim to dramatically simplify the process of creating and building OS packages. We're targetting .debs, and creating one can be as simple as creating and maintaining a YAML configuration file. For Rubygems, the process is even easier - a single command makes a gem ready to be built into a .deb
+
+== Warning: Alpha software
+
+Hey, this is alpha stuff. There's plenty cruft and rough edges, the RDoc's pretty bad and there's a general lack of good documentation and examples. I'm working on it. You're more than welcome to join in. 
+
+== How to get it
+
+The source is available from Github: http://github.com/fidothe/dpkg-tools/, and bugs, requests and other queries can be filed at http://dpkg-tools.lighthouseapp.com/. You can clone the public Git repo with:
+
+  git clone git://github.com/fidothe/dpkg-tools.git

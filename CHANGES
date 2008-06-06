@@ -1,3 +1,8 @@
+== 0.3.3 2008-06-06
+
+* Initial release at Rubyforge
+* Lots of reorganisation of the release infrastructure, which I have been looting wholesale from RSpec.
+
 == 0.3.0 2008-05-08
 
 * Plenty tweaks to Rails startup scripts, added dpkg-etc for config. package generation
