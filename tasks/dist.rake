@@ -3,7 +3,10 @@ require 'rake/contrib/rubyforgepublisher'
 require 'rake/rdoctask'
 require "#{File.dirname(__FILE__)}/../lib/dpkg-tools/version.rb"
 
-GEM_FILE_NAME = "#{DpkgTools::GEM_NAME}-#{DpkgTools::VERSION::STRING}"
+# constants required for MetaProject's rubyforge releaser
+PKG_NAME = DpkgTools::GEM_NAME
+PKG_VERSION = DpkgTools::VERSION::STRING
+PKG_FILE_NAME = "#{PKG_NAME}-#{PKG_VERSION}"
 PKG_FILES = FileList[
   '[A-Z]*',
   'lib/**/*.rb', 
@@ -67,29 +70,28 @@ task :publish_website => :rdoc do
 end
 
 desc "Make sure that the .tgz created by GemPackageTask gets renamed to .tar.gz. I know it's ridiculous, no need to tell me."
-file "pkg/#{GEM_FILE_NAME}.tar.gz" => "pkg/#{GEM_FILE_NAME}.tgz" do
-  mv "pkg/#{GEM_FILE_NAME}.tgz", "pkg/#{GEM_FILE_NAME}.tar.gz"
+file "pkg/#{PKG_FILE_NAME}.tar.gz" => "pkg/#{PKG_FILE_NAME}.tgz" do
+  mv "pkg/#{PKG_FILE_NAME}.tgz", "pkg/#{PKG_FILE_NAME}.tar.gz"
 end
 
 desc "Publish gem+tar.gz+zip on RubyForge. You must make sure lib/version.rb is aligned with the CHANGELOG file"
-task :publish_gem => [:package, "pkg/#{GEM_FILE_NAME}.tar.gz"] do
+task :publish_gem => [:package, "pkg/#{PKG_FILE_NAME}.tar.gz"] do
   release_files = FileList[
-    "pkg/#{GEM_FILE_NAME}.gem",
-    "pkg/#{GEM_FILE_NAME}.tar.gz",
-    "pkg/#{GEM_FILE_NAME}.zip"
+    "pkg/#{PKG_FILE_NAME}.gem",
+    "pkg/#{PKG_FILE_NAME}.tar.gz",
+    "pkg/#{PKG_FILE_NAME}.zip"
   ]
   unless DpkgTools::VERSION::RELEASE_CANDIDATE
     require 'meta_project'
     require 'rake/contrib/xforge'
 
-    Rake::XForge::Release.new(MetaProject::Project::XForge::RubyForge.new(PKG_NAME)) do |xf|
+    Rake::XForge::Release.new(MetaProject::Project::XForge::RubyForge.new(DpkgTools::GEM_NAME)) do |xf|
       xf.user_name = 'fidothe'
       xf.files = release_files.to_a
       xf.release_name = "dpkg-tools #{DpkgTools::VERSION::STRING}"
     end
   else
     puts "SINCE THIS IS A PRERELEASE, FILES ARE UPLOADED WITH SSH, NOT TO THE RUBYFORGE FILE SECTION"
-    puts "YOU MUST TYPE THE PASSWORD #{release_files.length} TIMES..."
 
     host = "rspec-website@rubyforge.org"
     remote_dir = "/var/www/gforge-projects/#{DpkgTools::GEM_NAME}"

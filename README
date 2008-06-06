@@ -8,6 +8,10 @@ Hey, this is alpha stuff. There's plenty cruft and rough edges, the RDoc's prett
 
 == How to get it
 
+  gem install dpkg-tools
+  
+Or, the gem can be downloaded from http://rubyforge.org/projects/dpkg-tools/.
+
 The source is available from Github: http://github.com/fidothe/dpkg-tools/, and bugs, requests and other queries can be filed at http://dpkg-tools.lighthouseapp.com/. You can clone the public Git repo with:
 
   git clone git://github.com/fidothe/dpkg-tools.git
