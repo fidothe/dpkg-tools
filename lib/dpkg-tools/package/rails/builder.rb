@@ -8,9 +8,8 @@ module DpkgTools
     module Rails
       class Builder < DpkgTools::Package::Builder
         class << self
-          def from_path(path_to_app)
-            data = Data.new(path_to_app)
-            self.new(data)
+          def data_class
+            DpkgTools::Package::Rails::Data
           end
         end
         

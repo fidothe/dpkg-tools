@@ -20,7 +20,8 @@ module DpkgTools
             
             # Another typical switch to print the version.
             opts.on_tail("--version", "Show version") do
-              err.puts DpkgTools::Version.STRING
+              require 'dpkg-tools/version'
+              err.puts DpkgTools::Version::STRING
               exit
             end
           end
@@ -57,7 +58,8 @@ module DpkgTools
             
             # Another typical switch to print the version.
             opts.on_tail("--version", "Show version") do
-              err.puts DpkgTools::Version.STRING
+              require 'dpkg-tools/version'
+              err.puts DpkgTools::Version::STRING
               exit
             end
           end
@@ -110,7 +112,8 @@ module DpkgTools
 
             # Another typical switch to print the version.
             opts.on_tail("--version", "Show version") do
-              err.puts DpkgTools::Version.STRING
+              require 'dpkg-tools/version'
+              err.puts DpkgTools::Version::STRING
               exit
             end
           end

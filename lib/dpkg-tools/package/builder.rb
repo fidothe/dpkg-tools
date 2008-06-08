@@ -4,6 +4,19 @@ require 'rake'
 module DpkgTools
   module Package
     class Builder
+      class << self
+        def from_path(path_to_app)
+          data = data_class.new(path_to_app)
+          self.new(data)
+        end
+        
+        # Should be overridden by subclasses to return the specific 
+        # DpkgTools::Package::Data subclass they want to use
+        def data_class
+          DpkgTools::Package::Data
+        end
+      end
+      
       include DpkgTools::Package::FSMethods
       
       attr_reader :data, :config

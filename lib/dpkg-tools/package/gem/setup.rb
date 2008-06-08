@@ -3,8 +3,13 @@ require 'zlib'
 require 'rubygems/package'
 require 'rubygems/specification'
 require 'rubygems/remote_fetcher'
+begin
+  require 'rubygems/remote_installer'
+rescue LoadError => e
+  puts "Ignoring LoadError due to too-new Rubygems package :-("
+end
 
-require File.join(File.dirname(__FILE__), 'gem_format')
+require 'dpkg-tools/package/gem/gem_format'
 
 module DpkgTools
   module Package
