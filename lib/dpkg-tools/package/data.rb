@@ -40,11 +40,12 @@ module DpkgTools
         def process_dependencies_by_type(dependencies, dependency_type, suffix = nil)
           processed_dependencies = []
           if dependencies.has_key?(dependency_type)
-            unless dependencies[dependency_type].kind_of?(Array) || dependencies[dependency_type].nil?
+            dependencies_to_process = dependencies[dependency_type]
+            unless dependencies_to_process.kind_of?(Array) || dependencies_to_process.nil?
               raise DebYAMLParseError, "dependencies: #{dependency_type}: is not a list of items!"
             end
-            unless dependencies[dependency_type].nil?
-              dependencies[dependency_type].each do |dependency|
+            unless dependencies_to_process.nil?
+              dependencies_to_process.each do |dependency|
                 name = dependency.kind_of?(Hash) ? dependency.keys.first : dependency
                 requirements = dependency.kind_of?(Hash) ? dependency.values.first : nil
                 unless requirements.kind_of?(Array) || requirements.kind_of?(String) || requirements.nil?

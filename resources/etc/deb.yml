@@ -13,11 +13,11 @@ summary: "Package description (mandatory)"
 # To add dependencies, follow this pattern:
 #
 # dependencies:
-#   gems:
+#   gem:
 #     - rspec: ">= 1.0.8"
 #     - redcloth: 
 #       - ">= 1.0.0"
 #       - "< 2.0.0"
-#   packages:
+#   package:
 #     - mysql-client
 #     - mysql-server

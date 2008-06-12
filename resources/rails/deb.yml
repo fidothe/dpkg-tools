@@ -27,11 +27,11 @@ mongrel_cluster:
 # Mongrel, mongrel_cluster
 #
 # dependencies:
-#   gems:
+#   gem:
 #     - rspec: ">= 1.0.8"
 #     - redcloth: 
 #       - ">= 1.0.0"
 #       - "< 2.0.0"
-#   packages:
+#   package:
 #     - mysql-client
 #     - mysql-server
