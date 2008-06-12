@@ -89,12 +89,21 @@ describe DpkgTools::Package::Data::YamlConfigHelpers do
         should include({:name => 'rspec-rubygem', :requirements => ['>= 1.0.8-1']})
     end
 
+    it "should be able to cope with deps without version requirements" do
+      fixture_data = {'dependencies' => {'gem' => ['rspec']}}
+
+      @module.process_dependencies(fixture_data).
+        should include({:name => 'rspec-rubygem'})
+    end
+
     it "should raise an appropriate error if the dependencies collection is not a Hash (YAML collection)" do
       fixture_data = {'dependencies' => 'string'}
 
       lambda { @module.process_dependencies(fixture_data) }.
         should raise_error(DpkgTools::Package::DebYAMLParseError)
     end
+    
+    
   end
 
   describe @module, ".process_dependencies_by_type" do

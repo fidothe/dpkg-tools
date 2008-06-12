@@ -52,8 +52,10 @@ module DpkgTools
                   raise DebYAMLParseError, "The #{dependency_type} dependency #{name}'s version requirements MUST be either a list of items, or a single item!"
                 end
                 requirements = [requirements] if requirements.kind_of?(String)
-                requirements.collect! { |req| yield(req) } if block_given?
-                processed_dependencies << {:name => "#{name}#{"-"+ suffix unless suffix.nil?}", :requirements => requirements}
+                requirements.collect! { |req| yield(req) } if block_given? && !requirements.nil?
+                processed_dependency = {:name => "#{name}#{"-"+ suffix unless suffix.nil?}"}
+                processed_dependency[:requirements] = requirements unless requirements.nil?
+                processed_dependencies << processed_dependency
               end
             end
           end
