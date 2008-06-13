@@ -70,18 +70,24 @@ module DpkgTools
         
         # dpkg-tools rake tasks
         namespace :dpkg do
-          namespace :setup do
-            desc <<-EOD
-              Reset any files generated during initial setup to their pristine state.
-              Any of those files modified by you will be moved to <file_name>.bak first.
-              Identical files won't be touched.
-            EOD
-            task :reset do
-              setup = create_setup
-              setup.reset_maintainer_script_templates
-              setup.reset_control_files
-              setup.reset_package_resource_files
-            end
+          desc <<-EOD
+            Reset any files generated during initial setup to their pristine state.
+            Any of those files modified by you will be moved to <file_name>.bak first.
+            Identical files won't be touched.
+          EOD
+          task :reset do
+            setup = create_setup
+            setup.reset_maintainer_script_templates
+            setup.reset_control_files
+            setup.reset_package_resource_files
+          end
+          desc <<-EOD
+            Regenerate the control files.
+            Any of those files modified by you will be moved to <file_name>.bak first.
+          EOD
+          task :control do
+            setup = create_setup
+            setup.reset_control_files
           end
         end
       end
