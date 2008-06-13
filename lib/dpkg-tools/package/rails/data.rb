@@ -11,7 +11,7 @@ module DpkgTools
             YAML.load_file(File.join(base_path, 'config', filename)) if File.exist?(File.join(base_path, 'config', filename))
           end
           
-          def base_deps
+          def base_package_deps
             [{:name => 'mysql-client'}, {:name => 'mysql-server'}, {:name => 'apache2'}, 
              {:name => 'ruby', :requirements => ['>= 1.8.2']}]
           end
