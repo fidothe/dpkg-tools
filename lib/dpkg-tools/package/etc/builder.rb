@@ -17,7 +17,16 @@ module DpkgTools
         end
         
         def install_package_files
-          FileUtils.cp_r(config.base_path + '/etc', config.etc_install_path)
+          etc_path = config.base_path + '/etc'
+          files_to_install = Dir[etc_path + '/**/*']
+          files_to_install = Hash[*(files_to_install.collect {|fp| [fp, fp[(etc_path.size)..-1]]}).flatten]
+          files_to_install.each do |source_path, target_path|
+            if File.file?(source_path)
+              target_path = config.etc_install_path + target_path
+              FileUtils.mkdir_p(File.dirname(target_path))
+              FileUtils.install(source_path, target_path, :mode => 0644, :verbose => true)
+            end
+          end
         end
       end
     end

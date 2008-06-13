@@ -28,8 +28,20 @@ describe DpkgTools::Package::Etc::Builder do
     end
   
     it "should copy the contents of package/etc to package/debian/tmp/etc/" do
-      FileUtils.expects(:cp_r).with('/a/path/to/conf-package/etc', '/a/path/to/conf-package/debian/tmp/etc')
-    
+      Dir.expects(:[]).with('/a/path/to/conf-package/etc/**/*').returns(['/a/path/to/conf-package/etc/thing',
+                                                                         '/a/path/to/conf-package/etc/thing/conf_file',
+                                                                         '/a/path/to/conf-package/etc/thing/wotsit.yml'])
+      File.expects(:file?).with('/a/path/to/conf-package/etc/thing').returns(false)
+      File.expects(:file?).with('/a/path/to/conf-package/etc/thing/conf_file').returns(true)
+      FileUtils.expects(:mkdir_p).with('/a/path/to/conf-package/debian/tmp/etc/thing')
+      FileUtils.expects(:install).with('/a/path/to/conf-package/etc/thing/conf_file',
+                                       '/a/path/to/conf-package/debian/tmp/etc/thing/conf_file',
+                                       {:mode => 0644, :verbose => true})
+      File.expects(:file?).with('/a/path/to/conf-package/etc/thing/wotsit.yml').returns(true)
+      FileUtils.expects(:mkdir_p).with('/a/path/to/conf-package/debian/tmp/etc/thing')
+      FileUtils.expects(:install).with('/a/path/to/conf-package/etc/thing/wotsit.yml',
+                                       '/a/path/to/conf-package/debian/tmp/etc/thing/wotsit.yml',
+                                       {:mode => 0644, :verbose => true})
       @builder.install_package_files
     end
   end

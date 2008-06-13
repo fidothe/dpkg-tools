@@ -35,6 +35,7 @@ spec = Gem::Specification.new do |s|
   s.require_path = 'lib'
 
   s.has_rdoc = true
+  puts "rd.options: #{rd.options.inspect}"
   s.rdoc_options = rd.options
 
   s.bindir = 'bin'
