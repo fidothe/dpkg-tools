@@ -12,7 +12,8 @@ PKG_FILES = FileList[
   'lib/**/*.rb', 
   'spec/**/*',
   'stories/**/*',
-  'tasks/**/*'
+  'tasks/**/*',
+  'resources/**/*'
 ]
 
 desc 'Generate RDoc'
