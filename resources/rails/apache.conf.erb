@@ -12,7 +12,7 @@
 <% end -%>
   
   ProxyPass / balancer://mongrel_cluster/
-  ProxyPassReverse / balancer://mongrel_cluster/
+  ProxyPassReverse / balancer://mongrel_cluster
   
   ErrorLog /var/log/<%= name %>/apache2/error.log
   CustomLog /var/log/<%= name %>/apache2/access.log combined

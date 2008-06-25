@@ -49,8 +49,9 @@ EOT
 # invoke update-rc.d to get the app's init script loaded
 update-rc.d "<%= name %>" defaults 85 15
 
-# enable apache's mod_proxy_balancer
+# enable apache's mod_proxy_balancer and the http proxy protocol handler
 a2enmod proxy_balancer
+a2enmod proxy_http
 
 # enable the apache config we just installed
 a2ensite <%= name %>

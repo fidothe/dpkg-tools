@@ -15,3 +15,29 @@ Or, the gem can be downloaded from http://rubyforge.org/projects/dpkg-tools/.
 The source is available from Github: http://github.com/fidothe/dpkg-tools/, and bugs, requests and other queries can be filed at http://dpkg-tools.lighthouseapp.com/. You can clone the public Git repo with:
 
   git clone git://github.com/fidothe/dpkg-tools.git
+
+= How to use it
+
+dpkg-tools comes with three utilities, to create packages from three different kinds of things. <tt>dpkg-gem</tt> makes it easy to generate .debs from local and remote rubygems. <tt>dpkg-etc</tt> makes it easy to create packages of configuration files. Finally, <tt>dpkg-rails</tt> makes it easy to package up Rails apps.
+
+== <tt>dpkg-gem</tt>
+
+  dpkg-gem {gem_name} 
+  
+This will grab the gem _gem_name_ from Rubyforge, along with all its dependencies, and create package directories for all of them. All you need to do then is run <tt>dpkg-buildpackage</tt> from inside the directory and you're away.
+
+  dpkg-gem --from-gem /path/to/rubygem.gem
+  
+Will do the same for a local .gem file.
+
+== <tt>dpkg-etc</tt>
+
+  dpkg-etc /path/to/package/dir
+  
+Will take a directory and drop in the scaffolding needed to make it a configuration package. Configuration files go in /path/to/package/dir/etc, and dpkg-tools makes <tt>dpkg-buildpackage</tt> know what to do...
+
+== <tt>dpkg-rails</tt>
+
+  dpkg-rails /path/to/rails/app
+  
+Will add the necessary configuration files and rake tasks to a Rails app so that a base deployment package can be generated with <tt>dpkg-buildpackage</tt>. Installing that package prepares a machine with a Mongrel cluster setup plus Apache 2's mod_proxy_balancer, allowing adding developer SSH keys for simple Capistrano deployment (tasks for that are generated too).

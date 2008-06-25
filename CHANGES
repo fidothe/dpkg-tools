@@ -1,3 +1,14 @@
+== Version 0.3.4
+
+2008-06-25: Lots of bugfixing, some small refinements.
+
+* Added mickey-mouse usage instructions to README (http://dpkg-tools.lighthouseapp.com/projects/12374/tickets/2)
+* dpkg-etc was copying its payload to the wrong place, fixing which revealed a worse underlying bad-assumption caused problem. (http://dpkg-tools.lighthouseapp.com/projects/12374/tickets/8)
+* Fixed bug with dependency requirements handling which was causing dependencies without version requirements to explode when being written to the control file (http://dpkg-tools.lighthouseapp.com/projects/12374/tickets/7)
+* Fixed typos in the various deb.yml templates (http://dpkg-tools.lighthouseapp.com/projects/12374/tickets/6)
+* Added shebang to dpkg-etc postinst template (http://dpkg-tools.lighthouseapp.com/projects/12374/tickets/4)
+* Refactored DpkgTools::Package::Builder and subclasses to fix problems with builder creation (http://dpkg-tools.lighthouseapp.com/projects/12374/tickets/1)
+
 == Version 0.3.3
 
 2008-06-06: Initial Rubyforge release, lots of rough edges around the process (and the software)
