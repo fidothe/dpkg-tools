@@ -18,7 +18,7 @@ describe DpkgTools::Package::Rails::Data, "base dependencies" do
   end
   
   it "should return a sensible list of base package dependencies" do
-    DpkgTools::Package::Rails::Data.base_deps.
+    DpkgTools::Package::Rails::Data.base_package_deps.
       should == [{:name => 'mysql-client'}, {:name => 'mysql-server'}, {:name => 'apache2'}, 
                  {:name => 'ruby', :requirements => ['>= 1.8.2']}]    
   end

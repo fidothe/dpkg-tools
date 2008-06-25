@@ -77,11 +77,17 @@ describe DpkgTools::Package::BuildTasks, "instances" do
     @rake['build'].invoke
   end
   
-  it "should call the correct reset methods on a setup instance from dpkg:setup:reset" do
+  it "should call the correct reset methods on a setup instance from dpkg:reset" do
     @mock_setup.expects(:reset_maintainer_script_templates)
     @mock_setup.expects(:reset_control_files)
     @mock_setup.expects(:reset_package_resource_files)
     
-    @rake['dpkg:setup:reset'].invoke
+    @rake['dpkg:reset'].invoke
+  end
+  
+  it "should be able regenerate control files from dpkg:control" do
+    @mock_setup.expects(:reset_control_files)
+    
+    @rake['dpkg:control'].invoke
   end
 end
