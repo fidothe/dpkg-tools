@@ -94,6 +94,10 @@ module DpkgTools
         "all"
       end
       
+      def build_system_architecture
+        IO.popen('dpkg-architecture -qDEB_BUILD_ARCH').gets.chomp
+      end
+      
       def architecture_independent?
         debian_arch == 'all'
       end

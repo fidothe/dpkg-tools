@@ -1,4 +1,5 @@
 require File.dirname(__FILE__) + '/../../spec_helper'
+require 'stringio'
 
 describe DpkgTools::Package::Data, "instances" do
   before(:each) do
@@ -29,6 +30,13 @@ describe DpkgTools::Package::Data, "instances" do
   it "should be able to say that it isn't an architecture-independent package when it isn't" do
     @data.stubs(:debian_arch).returns('i386')
     @data.architecture_independent?.should be_false
+  end
+  
+  it "should be able to return the underlying build arch" do
+    io = StringIO.new("amd64\n")
+    IO.expects(:popen).with('dpkg-architecture -qDEB_BUILD_ARCH').returns(io)
+    
+    @data.build_system_architecture.should == "amd64"
   end
 end
 

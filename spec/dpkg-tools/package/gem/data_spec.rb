@@ -143,9 +143,20 @@ describe DpkgTools::Package::Gem::Data, "instances" do
     @data.debian_arch.should == "all"
   end
   
-  it "should provide report the debian architecture name as i386 if spec.extensions is not empty" do
-    @spec.stubs(:extensions).returns(['extconf.rb'])
-    @data.debian_arch.should == "i386"
+  describe "reporting debian archtecture when spec.extensions is not empty" do
+    before(:each) do
+      @spec.stubs(:extensions).returns(['extconf.rb'])
+    end
+    
+    it "should report the debian architecture name as i386 when the underlying system is too" do
+      @data.stubs(:build_system_architecture).returns("i386")
+      @data.debian_arch.should == "i386"
+    end
+    
+    it "should report the debian architecture name as amd64 when the underlying system is too" do
+      @data.stubs(:build_system_architecture).returns("amd64")
+      @data.debian_arch.should == "amd64"
+    end
   end
   
   it "should be able to generate a sensible list of deps" do

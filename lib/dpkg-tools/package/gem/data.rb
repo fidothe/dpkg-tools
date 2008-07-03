@@ -67,7 +67,7 @@ module DpkgTools
         
         def debian_arch
           return 'all' if @spec.extensions.empty?
-          'i386'
+          build_system_architecture
         end
         
         def build_dependencies
