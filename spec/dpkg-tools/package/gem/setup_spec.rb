@@ -21,7 +21,7 @@ describe DpkgTools::Package::Gem::Setup do
   end
   
   it "should be able to retrieve the latest Gem:::Platform::RUBY version from a list of specs and sources " do
-    specs_n_sources = [[stub('spec', :platform => Gem::Platform::WIN32), 'a_uri'], 
+    specs_n_sources = [[stub('spec', :platform => Gem::Platform.new(['x86', 'mswin32', '60'])), 'a_uri'], 
                        [stub('spec', :platform => Gem::Platform::RUBY), 'a_second_uri'],
                        [stub('spec', :platform => Gem::Platform::RUBY), 'a_third_uri']]
                        
@@ -29,7 +29,7 @@ describe DpkgTools::Package::Gem::Setup do
   end
   
   it "should be able to retrieve the latest version where @spec.platform is unset (where it notionally defaults to RUBY)" do
-    specs_n_sources = [[stub('spec', :platform => Gem::Platform::WIN32), 'a_uri'], 
+    specs_n_sources = [[stub('spec', :platform => Gem::Platform.new(['x86', 'mswin32', '60'])), 'a_uri'], 
                        [stub('spec', :platform => nil), 'a_second_uri'],
                        [stub('spec', :platform => nil), 'a_third_uri']]
                        
@@ -104,10 +104,10 @@ describe DpkgTools::Package::Gem::Setup do
   end
   
   it "should be able to return the most recent spec_n_source that satisfies a Gem::Requirement from a spec_n_source" do
-    specs_n_sources = [[stub('spec', :platform => Gem::Platform::WIN32, :version => Gem::Version.create('1.1.8')), 'a_uri'], 
+    specs_n_sources = [[stub('spec', :platform => Gem::Platform.new(['x86', 'mswin32', '60']), :version => Gem::Version.create('1.1.8')), 'a_uri'], 
                        [stub('spec', :platform => Gem::Platform::RUBY, :version => Gem::Version.create('1.1.8')), 'a_second_uri'],
                        [stub('spec', :platform => Gem::Platform::RUBY, :version => Gem::Version.create('1.1.0')), 'a_third_uri'],
-                       [stub('spec', :platform => Gem::Platform::WIN32, :version => Gem::Version.create('1.0.8')), 'a_fourth_uri'],
+                       [stub('spec', :platform => Gem::Platform.new(['x86', 'mswin32', '60']), :version => Gem::Version.create('1.0.8')), 'a_fourth_uri'],
                        [stub('spec', :platform => Gem::Platform::RUBY, :version => Gem::Version.create('1.0.8')), 'a_fifth_uri'],
                        [stub('spec', :platform => Gem::Platform::RUBY, :version => Gem::Version.create('1.0.2')), 'a_sixth_uri'],
                        [stub('spec', :platform => Gem::Platform::RUBY, :version => Gem::Version.create('0.9.8')), 'a_seventh_uri']]
@@ -119,10 +119,10 @@ describe DpkgTools::Package::Gem::Setup do
   end
   
   it "should be able to return the most recent spec_n_source that satisfies a Gem::Requirement from a spec_n_source, even when spec.platform is unset " do
-    specs_n_sources = [[stub('spec', :platform => Gem::Platform::WIN32, :version => Gem::Version.create('1.1.8')), 'a_uri'], 
+    specs_n_sources = [[stub('spec', :platform => Gem::Platform.new(['x86', 'mswin32', '60']), :version => Gem::Version.create('1.1.8')), 'a_uri'], 
                        [stub('spec', :platform => Gem::Platform::RUBY, :version => Gem::Version.create('1.1.8')), 'a_second_uri'],
                        [stub('spec', :platform => nil, :version => Gem::Version.create('1.1.0')), 'a_third_uri'],
-                       [stub('spec', :platform => Gem::Platform::WIN32, :version => Gem::Version.create('1.0.8')), 'a_fourth_uri'],
+                       [stub('spec', :platform => Gem::Platform.new(['x86', 'mswin32', '60']), :version => Gem::Version.create('1.0.8')), 'a_fourth_uri'],
                        [stub('spec', :platform => nil, :version => Gem::Version.create('1.0.8')), 'a_fifth_uri'],
                        [stub('spec', :platform => Gem::Platform::RUBY, :version => Gem::Version.create('1.0.2')), 'a_sixth_uri'],
                        [stub('spec', :platform => Gem::Platform::RUBY, :version => Gem::Version.create('0.9.8')), 'a_seventh_uri']]

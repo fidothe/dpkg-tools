@@ -3,10 +3,10 @@ module DpkgTools #:nodoc:
     unless defined? MAJOR
       MAJOR  = 0
       MINOR  = 3
-      TINY   = 4
+      TINY   = 6
       RELEASE_CANDIDATE = nil
       
-      BUILD_TIME = "2008-06-25T11:26:00+01:00"
+      BUILD_TIME = "2008-07-02T16:00:03+01:00"
       
       STRING = [MAJOR, MINOR, TINY].join('.')
       TAG = "REL_#{[MAJOR, MINOR, TINY, RELEASE_CANDIDATE].compact.join('_')}".upcase.gsub(/\.|-/, '_')

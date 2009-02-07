@@ -1,3 +1,9 @@
+== Version 0.3.5
+
+2008-07-02: Quick major minor-bugfix
+
+* Make the debian binary architecture handling for gems more intelligent: we now actually report the underlying system's build architecture instead of just i386. This allows native gems to be built on my amd64 system...
+
 == Version 0.3.4
 
 2008-06-25: Lots of bugfixing, some small refinements.
